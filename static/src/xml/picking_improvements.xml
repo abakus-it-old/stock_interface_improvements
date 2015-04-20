@@ -74,7 +74,7 @@
                 <div>
                     <div class="col-sm-9 col-xs-6">
                         <h2 class="oe_pick_app_header" />
-                        <!-- modified -->
+                        <!-- modified, added-->
                         <table class="table table-condensed">
                             <tr>
                                 <t t-foreach="widget.get_header_info()" t-as="info">
@@ -282,12 +282,89 @@
         </div>
     </t>
 
+    <t t-name="PickingProductsWidget">
+        <div class="navbar navbar-inverse navbar-static-top" role="navigation">
+            <div class="container">
+                <div class="navbar-header navbar-form navbar-left">
+                    <input type='text' id="product_search_box" class="oe_searchbox form-control pull-left" placeholder='Search'/>
+                </div>
+                <div class="navbar-header navbar-form navbar-right">
+                    <button type="button" class="btn btn-danger js_pick_quit pull-right">Quit</button>
+                </div>
 
-    <t t-name="PickingMainNewWidget">
+            </div>
+        </div>
+        <div class="container">
+
+            <h1 class="js_title_label">Products</h1>
+            <div class='js_picking_not_found alert alert-warning hidden'>
+                Scanned product could not be found
+            </div>
+
+            <div class="row">
+                <table class='table table-condensed'>
+                    <thead>
+                        <tr>
+                            <th class="text-left" width="10%">Id</th>
+                            <th class="text-left" width="30%">Brand</th>
+                            <th class="text-left" width="30%">Name</th>
+                            <th class="text-left" width="30%">EAN13</th>
+                        </tr>
+                    </thead>
+                    <tbody class='js_products_table_todo'>
+                        <t t-foreach="widget.products" t-as="product">
+                            <tr t-att-data-id="product.id" >
+                                <td t-att-class="'brctbl-col1 text-left'">
+                                    <t t-esc="product.id" />
+                                </td>
+                                <td t-att-class="'brctbl-col2 text-left'">
+                                    <t t-esc="product.brand" />
+                                </td>
+                                <td t-att-class="'brctbl-col3 text-left'">
+                                    <t t-esc="product.name" />
+                                </td>
+                                <td t-att-class="'brctbl-col4 text-left'">
+                                    <t t-esc="product.ean13" />
+                                </td>
+                            </tr>
+                        </t>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </t>
+    
+     <t t-name="ProductsSearchResults">
+        <t t-if="results.length === 0">
+            <strong>No picking found.</strong>
+        </t>
+        <t t-if="results.length > 0">
+            <t t-foreach="results" t-as="product">
+                <tr t-att-data-id="product.id" class="oe_product">
+                    <td t-att-class="'brctbl-col1 text-left'">
+                        <t t-esc="product.id" />
+                    </td>
+                    <td t-att-class="'brctbl-col2 text-left'">
+                        <t t-esc="product.brand" />
+                    </td>
+                    <td t-att-class="'brctbl-col3 text-left'">
+                        <t t-esc="product.name" />
+                    </td>
+                    <td t-att-class="'brctbl-col4 text-left'">
+                        <t t-esc="product.ean13" />
+                    </td>
+                </tr>
+            </t>
+        </t>
+    </t>
+
+    
+<t t-name="PickingMainNewWidget">
         <div class="navbar navbar-inverse navbar-static-top" role="navigation">
             <div class="container">
                 <div class="navbar-left">
                     <button type="button" class="btn btn-primary navbar-btn js_pick_menu">Menu</button>
+                    <button type="button" class="btn btn-primary navbar-btn js_pick_products">Products</button>
                 </div>
                 <div class="navbar-right">
                     <button type="button" class="btn btn-default navbar-btn js_pick_prev">&lt; Previous</button>
@@ -302,6 +379,28 @@
                 The reserved stock changed. You might want to <button class="btn btn-default js_reload_op"> Recompute </button> the operations.
             </div>
         </div>
-    </t>
+</t>
+
+<t t-name="PickingProductWidget">
+        <div class="navbar navbar-inverse navbar-static-top" role="navigation">
+            <div class="container">
+                <div class="navbar-left">
+                    <button type="button" class="btn btn-primary navbar-btn js_pick_menu">Menu</button>
+                    <button type="button" class="btn btn-primary navbar-btn js_pick_products">Products</button>
+                </div>
+                <div class="navbar-right">
+                    <button type="button" class="btn btn-default navbar-btn js_pick_prev">&lt; Previous</button>
+                    <button type="button" class="btn btn-default navbar-btn js_pick_next">Next &gt;</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class='oe_placeholder_picking_editor'/>
+            <div class="text-right small oe_reload_op">
+                The reserved stock changed. You might want to <button class="btn btn-default js_reload_op"> Recompute </button> the operations.
+            </div>
+        </div>
+</t>
 
 </templates>
