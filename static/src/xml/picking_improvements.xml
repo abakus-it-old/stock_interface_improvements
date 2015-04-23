@@ -245,7 +245,9 @@
         <div class="navbar navbar-inverse navbar-static-top" role="navigation">
             <div class="container">
                 <div class="navbar-header navbar-form navbar-left">
-                    <input type='text' class="oe_searchbox form-control pull-left" placeholder='Search'/>
+                    <input type='text' class="oe_searchbox form-control" placeholder='Search'/>
+                    <button type="button" class="btn btn-primary navbar-btn js_pick_menu">Menu</button>
+                    <button type="button" class="btn btn-primary navbar-btn js_pick_products">Products</button>
                 </div>
                 <div class="navbar-header navbar-form navbar-right">
                     <button type="button" class="btn btn-danger js_pick_quit pull-right">Quit</button>
@@ -281,19 +283,8 @@
             </div>
         </div>
     </t>
-
+    
     <t t-name="PickingProductsWidget">
-        <div class="navbar navbar-inverse navbar-static-top" role="navigation">
-            <div class="container">
-                <div class="navbar-header navbar-form navbar-left">
-                    <input type='text' id="product_search_box" class="oe_searchbox form-control pull-left" placeholder='Search'/>
-                </div>
-                <div class="navbar-header navbar-form navbar-right">
-                    <button type="button" class="btn btn-danger js_pick_quit pull-right">Quit</button>
-                </div>
-
-            </div>
-        </div>
         <div class="container">
 
             <h1 class="js_title_label">Products</h1>
@@ -305,59 +296,43 @@
                 <table class='table table-condensed'>
                     <thead>
                         <tr>
-                            <th class="text-left" width="10%">Id</th>
-                            <th class="text-left" width="30%">Brand</th>
-                            <th class="text-left" width="30%">Name</th>
-                            <th class="text-left" width="30%">EAN13</th>
+                            <th class="text-left" width="25%">Brand</th>
+                            <th class="text-left" width="25%">Name</th>
+                            <th class="text-left" width="25%">Internal Reference</th>                            
+                            <th class="text-left" width="25%">EAN13 Barcode</th>
                         </tr>
                     </thead>
                     <tbody class='js_products_table_todo'>
-                        <t t-foreach="widget.products" t-as="product">
-                            <tr t-att-data-id="product.id" >
-                                <td t-att-class="'brctbl-col1 text-left'">
-                                    <t t-esc="product.id" />
-                                </td>
-                                <td t-att-class="'brctbl-col2 text-left'">
-                                    <t t-esc="product.brand" />
-                                </td>
-                                <td t-att-class="'brctbl-col3 text-left'">
-                                    <t t-esc="product.name" />
-                                </td>
-                                <td t-att-class="'brctbl-col4 text-left'">
-                                    <t t-esc="product.ean13" />
+                        <t t-if="products.length === 0">
+                            <tr>
+                                <td id="products_result_status" colspan="4">
+                                    No product found.
                                 </td>
                             </tr>
+                        </t>
+                        <t t-if="products.length > 0">
+                            <t t-foreach="products" t-as="product">
+                                <tr t-att-data-id="product.id" class="oe_product">
+                                    <td t-att-class="'brctbl-col1 text-left'">
+                                        <t t-esc="product.brand" />
+                                    </td>
+                                    <td t-att-class="'brctbl-col2 text-left'">
+                                        <t t-esc="product.name" />
+                                    </td>
+                                    <td t-att-class="'brctbl-col3 text-left'">
+                                        <t t-esc="product.default_code" />
+                                    </td>
+                                    <td t-att-class="'brctbl-col4 text-left'">
+                                        <t t-esc="product.ean13" />
+                                    </td>
+                                </tr>
+                            </t>
                         </t>
                     </tbody>
                 </table>
             </div>
         </div>
     </t>
-    
-     <t t-name="ProductsSearchResults">
-        <t t-if="results.length === 0">
-            <strong>No picking found.</strong>
-        </t>
-        <t t-if="results.length > 0">
-            <t t-foreach="results" t-as="product">
-                <tr t-att-data-id="product.id" class="oe_product">
-                    <td t-att-class="'brctbl-col1 text-left'">
-                        <t t-esc="product.id" />
-                    </td>
-                    <td t-att-class="'brctbl-col2 text-left'">
-                        <t t-esc="product.brand" />
-                    </td>
-                    <td t-att-class="'brctbl-col3 text-left'">
-                        <t t-esc="product.name" />
-                    </td>
-                    <td t-att-class="'brctbl-col4 text-left'">
-                        <t t-esc="product.ean13" />
-                    </td>
-                </tr>
-            </t>
-        </t>
-    </t>
-
     
 <t t-name="PickingMainNewWidget">
         <div class="navbar navbar-inverse navbar-static-top" role="navigation">
@@ -382,25 +357,114 @@
 </t>
 
 <t t-name="PickingProductWidget">
-        <div class="navbar navbar-inverse navbar-static-top" role="navigation">
+    <div class="container">
+        <h1>Product</h1>
+        <t t-if="product.image_medium">
+            <t t-set="image_medium" t-value="'&lt;img  src=&quot;data:image/gif;base64,'+ product.image_medium +'&quot;  /&gt;'"/>
+            <t t-raw="image_medium"/>
+        </t>
+        <br/>
+        <table class='table table-condensed table-striped'>
+            <tr>
+                <th>Brand</th>
+                <td><t t-esc="product.brand" /></td>
+            </tr>
+            <tr>
+                <th>Name</th>
+                <td><t t-esc="product.name" /></td>
+            </tr>
+            <tr>
+                <th>EAN13 Barcode</th>
+                <td><t t-esc="product.ean13" /></td>
+            </tr>
+            <tr>
+                <th>Internal Reference</th>
+                <td><t t-esc="product.default_code" /></td>
+            </tr>
+            <tr>
+                <th>Quantity On Hand</th>
+                <td><t t-if="product.qty_available"><t t-esc="product.qty_available"/></t><t t-if="! product.qty_available">0</t></td>
+            </tr>
+            <tr>
+                <th>Internal Category</th>
+                <td><t t-esc="product.category" /></td>
+            </tr>
+        </table>
+        <h2>Moves</h2>
+
+        <t t-if="pickings_per_types.length === 0">
+                    <tr>
+                        <td>
+                            No Move found.
+                        </td>
+                    </tr>
+        </t> 
+        <t t-if="pickings_per_types.length > 0">
+            <t t-foreach="pickings_per_types" t-as="type">
+                <table class='table table-condensed table-bordered'>
+                    <thead>
+                            <tr>
+                                <th class="text-center" colspan="4"><t t-esc="type.name"/></th>
+                            </tr>
+                            <tr>
+                                <th class="text-left" width="25%">Picking Name</th>
+                                <th class="text-left" width="25%">Creation Date</th>   
+                                <th class="text-left" width="25%">Partner</th>
+                                <th class="text-left" width="25%">State</th>
+                            </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="type.pickings" t-as="picking">
+                            <tr class="oe_picking" t-att-data-id="picking.id">
+                                <td t-att-class="'brctbl-col1 text-left'">
+                                    <t t-esc="picking.name" />
+                                </td>
+                                <td t-att-class="'brctbl-col2 text-left'">
+                                    <t t-esc="picking.date" />
+                                </td>
+                                <td t-att-class="'brctbl-col3 text-left'">
+                                    <t t-esc="picking.partner" />
+                                </td>
+                                <td t-att-class="'brctbl-col4 text-left'">
+                                    <t t-esc="picking.state" />
+                                </td>
+                            </tr>
+                        </t>
+                    </tbody>
+                </table>
+            </t>
+        </t>
+        
+        
+        
+        
+    </div>
+</t>
+
+<t t-name="PageWidget">
+    <div>
+         <div class="navbar navbar-inverse navbar-static-top" role="navigation">
             <div class="container">
-                <div class="navbar-left">
+                <div class="navbar-header navbar-form navbar-left">
+                    <input type='text' id="product_search_box" class="oe_searchbox form-control" placeholder='Search'/>
+                    <button type="button" class="btn btn-primary navbar-btn js_clear_search">Clear Search</button>
                     <button type="button" class="btn btn-primary navbar-btn js_pick_menu">Menu</button>
                     <button type="button" class="btn btn-primary navbar-btn js_pick_products">Products</button>
                 </div>
-                <div class="navbar-right">
-                    <button type="button" class="btn btn-default navbar-btn js_pick_prev">&lt; Previous</button>
-                    <button type="button" class="btn btn-default navbar-btn js_pick_next">Next &gt;</button>
+                <div class="navbar-header navbar-form navbar-right">
+                    <button type="button" class="btn btn-danger js_pick_quit pull-right">Quit</button>
                 </div>
             </div>
-        </div>
-
-        <div class="container">
-            <div class='oe_placeholder_picking_editor'/>
-            <div class="text-right small oe_reload_op">
-                The reserved stock changed. You might want to <button class="btn btn-default js_reload_op"> Recompute </button> the operations.
+        </div>      
+        <div class="content">
+            <div class="container">
+                <h1>LOADING...</h1>
             </div>
         </div>
+        <div class="footer">
+           
+        </div>
+    </div>
 </t>
 
 </templates>
