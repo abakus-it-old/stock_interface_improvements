@@ -426,25 +426,28 @@
                         
                             <t t-set="tr_style" t-value=""/>
                             <t t-if="picking.state=='Draft'">
-                                <!-- grey -->
-                                <t t-set="tr_style" t-value="'background-color: #F8F8F8;'"/>
+                                <!-- white -->
+                                <t t-set="tr_style" t-value="'background-color: white;'"/>
                             </t>
                             <t t-if="picking.state=='Cancelled'">
                                 <!-- red -->
                                 <t t-set="tr_style" t-value="'background-color: #FF9999;'"/>
                             </t>
                             <t t-if="picking.state=='Waiting Another Operation'">
-                                <t t-set="tr_style" t-value="'background-color: white;'"/>
+                                <!-- orange -->
+                                <t t-set="tr_style" t-value="'background-color: #FFCC66;'"/>
                             </t>
                             <t t-if="picking.state=='Partially Available'">
-                                <t t-set="tr_style" t-value="'background-color: white;'"/>
+                                <!-- orange -->
+                                <t t-set="tr_style" t-value="'background-color: #FFCC66;'"/>
                             </t>
                             <t t-if="picking.state=='Waiting Availability'">
-                                <t t-set="tr_style" t-value="'background-color: white;'"/>
+                                <!-- orange -->
+                                <t t-set="tr_style" t-value="'background-color: #FFCC66;'"/>
                             </t>
                             <t t-if="picking.state=='Ready to Transfer'">
-                                <!-- yellow -->
-                                <t t-set="tr_style" t-value="'background-color: #FFFF99;'"/>
+                                <!-- blue -->
+                                <t t-set="tr_style" t-value="'background-color: #CCFFFF;'"/>
                             </t>
                             <t t-if="picking.state=='Transferred'">
                                 <!-- green -->
