@@ -293,7 +293,7 @@
             </div>
 
             <div class="row">
-                <table class='table table-condensed'>
+                <table class='table table-striped'>
                     <thead>
                         <tr>
                             <th class="text-left" width="25%">Brand</th>
@@ -358,39 +358,45 @@
 
 <t t-name="PickingProductWidget">
     <div class="container">
-        <h1>Product</h1>
-        <t t-if="product.image_medium">
-            <t t-set="image_medium" t-value="'&lt;img  src=&quot;data:image/gif;base64,'+ product.image_medium +'&quot;  /&gt;'"/>
-            <t t-raw="image_medium"/>
-        </t>
-        <br/>
-        <table class='table table-condensed table-striped'>
-            <tr>
-                <th>Brand</th>
-                <td><t t-esc="product.brand" /></td>
-            </tr>
-            <tr>
-                <th>Name</th>
-                <td><t t-esc="product.name" /></td>
-            </tr>
-            <tr>
-                <th>EAN13 Barcode</th>
-                <td><t t-esc="product.ean13" /></td>
-            </tr>
-            <tr>
-                <th>Internal Reference</th>
-                <td><t t-esc="product.default_code" /></td>
-            </tr>
-            <tr>
-                <th>Quantity On Hand</th>
-                <td><t t-if="product.qty_available"><t t-esc="product.qty_available"/></t><t t-if="! product.qty_available">0</t></td>
-            </tr>
-            <tr>
-                <th>Internal Category</th>
-                <td><t t-esc="product.category" /></td>
-            </tr>
-        </table>
-        <h2>Moves</h2>
+        <h3>Product</h3>
+        <div>
+            <div style="float: left; width: 70%;">
+                 <table class='table table-condensed table-striped'>
+                    <tr>
+                        <th>Brand</th>
+                        <td><t t-esc="product.brand" /></td>
+                    </tr>
+                    <tr>
+                        <th>Name</th>
+                        <td><t t-esc="product.name" /></td>
+                    </tr>
+                    <tr>
+                        <th>EAN13 Barcode</th>
+                        <td><t t-esc="product.ean13" /></td>
+                    </tr>
+                    <tr>
+                        <th>Internal Reference</th>
+                        <td><t t-esc="product.default_code" /></td>
+                    </tr>
+                    <tr>
+                        <th>Quantity On Hand</th>
+                        <td><t t-if="product.qty_available"><t t-esc="product.qty_available"/></t><t t-if="! product.qty_available">0</t></td>
+                    </tr>
+                    <tr>
+                        <th>Internal Category</th>
+                        <td><t t-esc="product.category" /></td>
+                    </tr>
+                </table>
+            </div>
+            <div style="float: right; width: 20%;">
+                <t t-if="product.image_medium">
+                    <t t-set="image_medium" t-value="'&lt;img  src=&quot;data:image/gif;base64,'+ product.image_medium +'&quot;  /&gt;'"/>
+                    <t t-raw="image_medium"/>
+                </t>  
+            </div>
+        </div>
+        
+        <h3 style="clear: both;">Moves</h3>
 
         <t t-if="pickings_per_types.length === 0">
                     <tr>
@@ -400,11 +406,13 @@
                     </tr>
         </t> 
         <t t-if="pickings_per_types.length > 0">
+            <t t-set="table_percent" t-value="100/pickings_per_types.length"/>
+            <t t-set="table_style" t-value="'width: '+table_percent+'%;'+' float: left;'"/>
             <t t-foreach="pickings_per_types" t-as="type">
-                <table class='table table-condensed table-bordered'>
+                <table class='table table-condensed table-bordered' t-att-style="table_style">
                     <thead>
                             <tr>
-                                <th class="text-center" colspan="4"><t t-esc="type.name"/></th>
+                            <th class="text-center" style="font-size:20px;" colspan="4"><t t-esc="type.name"/></th>
                             </tr>
                             <tr>
                                 <th class="text-left" width="25%">Picking Name</th>
@@ -415,9 +423,51 @@
                     </thead>
                     <tbody>
                         <t t-foreach="type.pickings" t-as="picking">
-                            <tr class="oe_picking" t-att-data-id="picking.id">
+                        
+                            <t t-set="tr_style" t-value=""/>
+                            <t t-if="picking.state=='Draft'">
+                                <!-- grey -->
+                                <t t-set="tr_style" t-value="'background-color: #F8F8F8;'"/>
+                            </t>
+                            <t t-if="picking.state=='Cancelled'">
+                                <!-- red -->
+                                <t t-set="tr_style" t-value="'background-color: #FF9999;'"/>
+                            </t>
+                            <t t-if="picking.state=='Waiting Another Operation'">
+                                <t t-set="tr_style" t-value="'background-color: white;'"/>
+                            </t>
+                            <t t-if="picking.state=='Partially Available'">
+                                <t t-set="tr_style" t-value="'background-color: white;'"/>
+                            </t>
+                            <t t-if="picking.state=='Waiting Availability'">
+                                <t t-set="tr_style" t-value="'background-color: white;'"/>
+                            </t>
+                            <t t-if="picking.state=='Ready to Transfer'">
+                                <!-- yellow -->
+                                <t t-set="tr_style" t-value="'background-color: #FFFF99;'"/>
+                            </t>
+                            <t t-if="picking.state=='Transferred'">
+                                <!-- green -->
+                                <t t-set="tr_style" t-value="'background-color: #99FF99;'"/>
+                            </t>
+                                           
+                            <tr class="oe_picking" t-att-data-id="picking.id" t-att-style="tr_style">
                                 <td t-att-class="'brctbl-col1 text-left'">
-                                    <t t-esc="picking.name" />
+                                    <t t-set="icon_class" t-value=""/>
+                                    <t t-set="icon_style" t-value=""/>
+                                    <t t-if="type.name=='INCOMING'">
+                                        <t t-set="icon_class" t-value="'fa fa-sign-in'"/>
+                                    </t>
+                                    <t t-if="type.name=='OUTGOING'">
+                                        <t t-set="icon_class" t-value="'fa fa-truck'"/>
+                                    </t>
+                                    <t t-if="type.name=='INTERNAL'">
+                                        <t t-set="icon_class" t-value="'fa fa-retweet'"/>
+                                    </t>
+                                    <t t-if="icon_class!=''">
+                                        <t t-set="icon_style" t-value="'margin-right: 5px;'"/>
+                                    </t>
+                                    <span t-att-class="icon_class" t-att-style="icon_style"/><t t-esc="picking.name" />
                                 </td>
                                 <td t-att-class="'brctbl-col2 text-left'">
                                     <t t-esc="picking.date" />
