@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data>
+    
         <template id="assets_backend_improvements" name="stock assets" inherit_id="stock.assets_backend">
             <script src="/stock/static/src/js/widgets.js" position="replace"/>
         </template>
@@ -9,6 +10,12 @@
             <xpath expr="." position="inside">
                 <script type="text/javascript" src="/stock_interface_improvements/static/src/js/widgets_improvements.js"></script>
             </xpath>
+        </template>
+        
+        <template id="barcode_index_improvements" inherit_id="stock.barcode_index">
+            <link rel="stylesheet" href="/stock/static/src/css/barcode.css" position="after">
+                <link rel="stylesheet" href="/stock_interface_improvements/static/src/css/product.css"/>
+            </link>
         </template>
         
         <record id="barcode_interface_url_action" model="ir.actions.act_url">

@@ -90,8 +90,9 @@
                     </div>
                     <div class="col-sm-3 col-xs⁻6 text-right">
 
-                    <button type="button" class='btn btn-default js_pick_done'> Create backorder </button>
-                    <button type="button" class='btn btn-default js_pick_print'> Print </button>
+                    <button type="button" class='btn btn-default js_pick_done'>Create backorder</button>
+                    <button type="button" class='btn btn-default js_pick_print'>Print Document</button>
+                    <button type="button" class='btn btn-default js_pick_print_labels'>Print Labels</button>
 
                     </div>
                 </div>
@@ -144,6 +145,7 @@
                         <th>Availability</th>
                         <!-- modified -->
                         <th>Status</th>
+                        <th></th>
                     </tr>
                 </thead>
 
@@ -211,6 +213,9 @@
                             </td>
                             <td class="brctbl-col5 js_status">
                                 <t t-esc="row.cols.state" />
+                            </td>
+                            <td class="brctbl-col6">
+                                <span class="fa fa-print fa-2x js_print_label" t-att-data-id="row.cols.id" ></span>
                             </td>
                         </tr>
                     </t>
