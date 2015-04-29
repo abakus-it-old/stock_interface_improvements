@@ -83,7 +83,7 @@
                             </tr>
                             <tr>
                                 <t t-foreach="widget.get_header_info()" t-as="info">
-                                    <td><t t-esc="info.value"/></td>
+                                    <td t-att-style="info.css"><t t-esc="info.value"/></td>
                                 </t>
                             </tr>
                         </table>
@@ -252,6 +252,8 @@
                 <div class="navbar-header navbar-form navbar-left">
                     <input type='text' class="oe_searchbox form-control" placeholder='Search'/>
                     <button type="button" class="btn btn-primary navbar-btn js_pick_menu">Menu</button>
+                    <button type="button" class="btn btn-primary navbar-btn js_pick_incomings">Incomings</button>
+                    <button type="button" class="btn btn-primary navbar-btn js_pick_outgoings">Outgoings</button>
                     <button type="button" class="btn btn-primary navbar-btn js_pick_products">Products</button>
                 </div>
                 <div class="navbar-header navbar-form navbar-right">
@@ -339,11 +341,71 @@
         </div>
     </t>
     
+    <t t-name="PickingListWidget">
+        <div class="container">
+
+            <h1 class="js_title_label"><t t-esc="type" /> Pickings</h1>
+            <div class='js_picking_not_found alert alert-warning hidden'>
+                Scanned picking could not be found
+            </div>
+
+            <div class="row">
+                <table class='table table-striped'>
+                    <thead>
+                        <tr>	 	
+                            <th class="text-left">Partner</th>
+                            <th class="text-left">Name</th>
+                            <th class="text-left">Source Document</th>
+                            <th class="text-left">Creation Date</th>                            
+                            <th class="text-left">Scheduled Date</th>
+                            <th class="text-left">State</th>
+                        </tr>
+                    </thead>
+                    <tbody class='js_products_table_todo'>
+                        <t t-if="pickings.length === 0">
+                            <tr>
+                                <td id="products_result_status" colspan="4">
+                                    No picking found.
+                                </td>
+                            </tr>
+                        </t>
+                        <t t-if="pickings.length > 0">
+                            <t t-foreach="pickings" t-as="picking">
+                                <tr t-att-data-id="picking.id" class="oe_product">
+                                    <td t-att-class="'brctbl-col1 text-left'">
+                                        <t t-esc="picking.partner" />
+                                    </td>
+                                    <td t-att-class="'brctbl-col1 text-left'">
+                                        <t t-esc="picking.name" />
+                                    </td>
+                                    <td t-att-class="'brctbl-col1 text-left'">
+                                        <t t-esc="picking.origin" />
+                                    </td>
+                                    <td t-att-class="'brctbl-col2 text-left'">
+                                        <t t-esc="picking.date" />
+                                    </td>
+                                    <td t-att-class="'brctbl-col3 text-left'">
+                                        <t t-esc="picking.min_date" />
+                                    </td>
+                                    <td t-att-class="'brctbl-col4 text-left'">
+                                        <t t-esc="picking.state" />
+                                    </td>
+                                </tr>
+                            </t>
+                        </t>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </t>
+    
 <t t-name="PickingMainNewWidget">
         <div class="navbar navbar-inverse navbar-static-top" role="navigation">
             <div class="container">
                 <div class="navbar-left">
                     <button type="button" class="btn btn-primary navbar-btn js_pick_menu">Menu</button>
+                    <button type="button" class="btn btn-primary navbar-btn js_pick_incomings">Incomings</button>
+                    <button type="button" class="btn btn-primary navbar-btn js_pick_outgoings">Outgoings</button>
                     <button type="button" class="btn btn-primary navbar-btn js_pick_products">Products</button>
                 </div>
                 <div class="navbar-right">
@@ -507,6 +569,8 @@
                     <input type='text' id="product_search_box" class="oe_searchbox form-control" placeholder='Search'/>
                     <button type="button" class="btn btn-primary navbar-btn js_clear_search">Clear Search</button>
                     <button type="button" class="btn btn-primary navbar-btn js_pick_menu">Menu</button>
+                    <button type="button" class="btn btn-primary navbar-btn js_pick_incomings">Incomings</button>
+                    <button type="button" class="btn btn-primary navbar-btn js_pick_outgoings">Outgoings</button>
                     <button type="button" class="btn btn-primary navbar-btn js_pick_products">Products</button>
                 </div>
                 <div class="navbar-header navbar-form navbar-right">
