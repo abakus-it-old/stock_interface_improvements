@@ -1424,6 +1424,13 @@ function openerp_picking_widgets(instance){
             $(window).trigger('hashchange');
         },
         scan: function(ean){ //scans a barcode, sends it to the server, then reload the ui
+            //for ean13 barcodes with 12 characters
+            ean = String(ean)
+            if(ean.length<13){
+                for(var i = 0 ; i<13-ean.length ; ++i){
+                    ean = "0"+ean;
+                }
+            }
             var self = this;
             var product_visible_ids = this.picking_editor.get_visible_ids();
             return new instance.web.Model('stock.picking')
