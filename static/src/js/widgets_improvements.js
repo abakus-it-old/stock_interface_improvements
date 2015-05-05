@@ -743,22 +743,24 @@ function openerp_picking_widgets(instance){
                         .order_by('name')
                         .all()
                 }).then(function(prods) {
-                    prods.sort(function(a, b) {
-                        if (!self.product_templates[a.product_tmpl_id[0]] || !self.product_templates[b.product_tmpl_id[0]]){return 0;}
-                        return self.product_templates[a.product_tmpl_id[0]].localeCompare(self.product_templates[b.product_tmpl_id[0]]);
-                    })
                     for(var i = 0; i < prods.length; i++){
                         var product = prods[i];
                         if (!self.product_templates[product.product_tmpl_id[0]]){continue;}
                         product.ean13 = product.ean13 ? product.ean13 : ""
                         product.brand = product.product_tmpl_id[0] ? self.product_templates[product.product_tmpl_id[0]] : "";
                         self.products_by_id[product.id] = product;
+                        self.products.push(product)
+                    }
+                    self.products.sort(function(a, b) {
+                        return a.brand.localeCompare(b.brand);
+                    })
+                    for(var i = 0; i < self.products.length; i++){
+                        var product = self.products[i];
                         self.product_search_string += '' + product.id + ':' + (product.ean13 ? product.ean13.toUpperCase(): '') 
                                                                             + (product.name ? product.name.toUpperCase(): '') 
                                                                             + (product.brand ? product.brand.toUpperCase(): '') 
                                                                             + (product.default_code ? product.default_code.toUpperCase(): '') 
                                                                             + '\n';
-                        self.products.push(product)
                     }
                 });
         },
