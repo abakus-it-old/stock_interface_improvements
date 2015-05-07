@@ -20,6 +20,123 @@ function openerp_picking_widgets(instance){
             return this._super();
         },
     });
+    
+    module.PageWidget = instance.web.Widget.extend({
+        template: 'PageWidget',
+        init: function(parent,params){
+            this._super(parent,params);
+            var self = this;
+            $(window).bind('hashchange', function(){
+                var states = $.bbq.getState();
+                if (states.action === "stock.products"){
+                    self.do_action({
+                        type:   'ir.actions.client',
+                        tag:    'stock.products',
+                        target: 'current',
+                    },{
+                        clear_breadcrumbs: true,
+                    });
+                }
+                else if (states.action === "stock.menu"){
+                    self.do_action({
+                        type:   'ir.actions.client',
+                        tag:    'stock.menu',
+                        target: 'current',
+                    },{
+                        clear_breadcrumbs: true,
+                    });
+                }
+                else if (states.action === "stock.ui"){
+                    self.do_action({
+                        type:   'ir.actions.client',
+                        tag:    'stock.ui',
+                        target: 'current',
+                    },{
+                        clear_breadcrumbs: true,
+                    });
+                }
+                else if (states.action === "stock.pickinglist"){
+                    self.do_action({
+                        type:   'ir.actions.client',
+                        tag:    'stock.pickinglist',
+                        target: 'current',
+                    },{
+                        clear_breadcrumbs: true,
+                    });
+                }
+                else if (states.action === "stock.partnerList"){
+                    self.do_action({
+                        type:   'ir.actions.client',
+                        tag:    'stock.partnerList',
+                        target: 'current',
+                    },{
+                        clear_breadcrumbs: true,
+                    });
+                }
+                else if (states.action === "stock.partnerMoves"){
+                    self.do_action({
+                        type:   'ir.actions.client',
+                        tag:    'stock.partnerMoves',
+                        target: 'current',
+                    },{
+                        clear_breadcrumbs: true,
+                    });
+                }
+            });
+        },
+
+        start: function(){
+            instance.webclient.set_content_full_screen(true);
+            var self = this;
+            this.$('.js_pick_quit').click(function(){ self.quit(); });
+            this.$('.js_pick_menu').click(function(){ self.menu(); });
+            this.$('.js_pick_products').click(function(){ self.goto_products(); });
+            this.$('.js_pick_incomings').click(function(){ self.goto_incomings(); });
+            this.$('.js_pick_outgoings').click(function(){ self.goto_outgoings(); });
+            this.$('.js_pick_customers').click(function(){ self.goto_customers(); });
+            this.$('.js_pick_suppliers').click(function(){ self.goto_suppliers(); });
+            this.$('.js_pick_partners').click(function(){ self.goto_partners(); });
+        },
+
+        menu: function(){
+            $.bbq.pushState('#action=stock.menu');
+            $(window).trigger('hashchange');
+        },
+        goto_products: function(){
+            $.bbq.pushState('#action=stock.products');
+            $(window).trigger('hashchange');
+        },
+        goto_incomings: function(){
+            $.bbq.pushState('#action=stock.pickinglist&type=incoming');
+            $(window).trigger('hashchange');
+        },
+        goto_outgoings: function(){
+            $.bbq.pushState('#action=stock.pickinglist&type=outgoing');
+            $(window).trigger('hashchange');
+        },
+        goto_customers: function(){
+            $.bbq.pushState('#action=stock.partnerList&type=customer');
+            $(window).trigger('hashchange');
+        },
+        goto_suppliers: function(){
+            $.bbq.pushState('#action=stock.partnerList&type=supplier');
+            $(window).trigger('hashchange');
+        },
+        goto_partners: function(){
+            $.bbq.pushState('#action=stock.partnerList');
+            $(window).trigger('hashchange');
+        },
+        quit: function(){
+            this.destroy();
+            return new instance.web.Model("ir.model.data").get_func("search_read")([['name', '=', 'action_picking_type_form']], ['res_id']).pipe(function(res) {
+                    window.location = '/web#action=' + res[0]['res_id'];
+                });
+        },
+        destroy: function(){
+            this._super();
+            instance.webclient.set_content_full_screen(false);
+        },
+    });
 
     module.PickingEditorWidget = instance.web.Widget.extend({
         //modified
@@ -508,6 +625,15 @@ function openerp_picking_widgets(instance){
                         clear_breadcrumbs: true,
                     });
                 }
+                else if (states.action === "stock.partnerList"){
+                    self.do_action({
+                        type:   'ir.actions.client',
+                        tag:    'stock.partnerList',
+                        target: 'current',
+                    },{
+                        clear_breadcrumbs: true,
+                    });
+                }
             });
             this.picking_types = [];
             this.loaded = this.load();
@@ -552,6 +678,7 @@ function openerp_picking_widgets(instance){
             self.$('.js_pick_products').click(function(){ self.goto_products(); });
             self.$('.js_pick_incomings').click(function(){ self.goto_incomings(); });
             self.$('.js_pick_outgoings').click(function(){ self.goto_outgoings(); });
+            self.$('.js_pick_partners').click(function(){ self.goto_partners(); });
             this.$('.oe_searchbox').keyup(function(event){
                 self.on_searchbox($(this).val());
             });
@@ -591,6 +718,10 @@ function openerp_picking_widgets(instance){
         },
         goto_last_picking_of_type: function(type_id){
             $.bbq.pushState('#action=stock.ui&picking_type_id='+type_id);
+            $(window).trigger('hashchange');
+        },
+        goto_partners: function(){
+            $.bbq.pushState('#action=stock.partnerList');
             $(window).trigger('hashchange');
         },
         search_picking: function(barcode){
@@ -669,437 +800,12 @@ function openerp_picking_widgets(instance){
     openerp.web.client_actions.add('stock.menu', 'instance.stock.PickingMenuWidget');
 
     
-    /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-    /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-    /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-    /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-    /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-
-    
-    module.PickingProductsWidget = module.MobileWidget.extend({
-        template: 'PageWidget',
-        init: function(parent, params){
-            this._super(parent,params);
-            var self = this;
-            $(window).bind('hashchange', function(){
-                var states = $.bbq.getState();
-                if (states.action === "stock.product"){
-                    self.do_action({
-                        type:   'ir.actions.client',
-                        tag:    'stock.product',
-                        target: 'current',
-                    },{
-                        clear_breadcrumbs: true,
-                    });
-                }
-                else if (states.action === "stock.products"){
-                    self.do_action({
-                        type:   'ir.actions.client',
-                        tag:    'stock.products',
-                        target: 'current',
-                    },{
-                        clear_breadcrumbs: true,
-                    });
-                }
-                else if (states.action === "stock.menu"){
-                    self.do_action({
-                        type:   'ir.actions.client',
-                        tag:    'stock.menu',
-                        target: 'current',
-                    },{
-                        clear_breadcrumbs: true,
-                    });
-                }
-                else if (states.action === "stock.pickinglist"){
-                    self.do_action({
-                        type:   'ir.actions.client',
-                        tag:    'stock.pickinglist',
-                        target: 'current',
-                    },{
-                        clear_breadcrumbs: true,
-                    });
-                }
-            });
-            this.products = [];
-            this.product_templates = {};
-            this.loaded = this.load();
-            this.products_by_id = {};
-            this.product_search_string = "";
-        },
-        load: function(){
-            var self = this;
-            return new instance.web.Model("product.template")
-                .query(['id','product_brand_id'])
-                .filter([['type', '=', 'product']])
-                .all()
-                .then(function(product_tmpls) {
-                    for(var i = 0; i < product_tmpls.length; i++){
-                        var product_template = product_tmpls[i];
-                        self.product_templates[product_template.id] = product_template.product_brand_id[1];
-                    }
-                    return new instance.web.Model("product.product")
-                        .query(['id','name','ean13','default_code','product_tmpl_id'])
-                        .filter([['active', '=', true]])
-                        .order_by('name')
-                        .all()
-                }).then(function(prods) {
-                    for(var i = 0; i < prods.length; i++){
-                        var product = prods[i];
-                        if (!self.product_templates[product.product_tmpl_id[0]]){continue;}
-                        product.ean13 = product.ean13 ? product.ean13 : ""
-                        product.brand = product.product_tmpl_id[0] ? self.product_templates[product.product_tmpl_id[0]] : "";
-                        self.products_by_id[product.id] = product;
-                        self.products.push(product)
-                    }
-                    self.products.sort(function(a, b) {
-                        return a.brand.localeCompare(b.brand);
-                    })
-                    for(var i = 0; i < self.products.length; i++){
-                        var product = self.products[i];
-                        self.product_search_string += '' + product.id + ':' + (product.ean13 ? product.ean13.toUpperCase(): '') 
-                                                                            + (product.name ? product.name.toUpperCase(): '') 
-                                                                            + (product.brand ? product.brand.toUpperCase(): '') 
-                                                                            + (product.default_code ? product.default_code.toUpperCase(): '') 
-                                                                            + '\n';
-                    }
-                });
-        },
-        start_rendering: function(){
-            var self = this;
-            this.$('.oe_searchbox').keyup(function(event){
-                self.on_searchbox($(this).val());
-            });
-            this.$('#product_search_box').focus();
-            this.$('.js_pick_quit').click(function(){ self.quit(); });
-            self.$('.js_clear_search').click(function(){ self.$('#product_search_box').val(""); self.on_searchbox(""); self.$('#product_search_box').focus();});
-            self.$('.js_pick_menu').click(function(){ self.menu(); });
-            self.$('.js_pick_products').click(function(){ self.goto_products(); });
-            self.$('.js_pick_incomings').click(function(){ self.goto_incomings(); });
-            self.$('.js_pick_outgoings').click(function(){ self.goto_outgoings(); });
-            self.$('.content').html(QWeb.render('PickingProductsWidget',{products:self.products}));
-            self.$('.js_products_table_todo .oe_product').click(function(){
-                self.goto_product($(this).data('id'));
-            });
-        },
-        start: function(){
-            var self = this;
-            instance.webclient.set_content_full_screen(true);            
-            this.loaded.then(function(){
-               self.start_rendering();
-            });
-        },
-        menu: function(){
-            $.bbq.pushState('#action=stock.menu');
-            $(window).trigger('hashchange');
-        },
-        goto_products: function(){
-            $.bbq.pushState('#action=stock.products');
-            $(window).trigger('hashchange');
-        },
-        goto_incomings: function(){
-            $.bbq.pushState('#action=stock.pickinglist&type=incoming');
-            $(window).trigger('hashchange');
-        },
-        goto_outgoings: function(){
-            $.bbq.pushState('#action=stock.pickinglist&type=outgoing');
-            $(window).trigger('hashchange');
-        },
-        goto_product: function(product_id){
-            $.bbq.pushState('#action=stock.product&product_id='+product_id);
-            $(window).trigger('hashchange');
-        },
-        search_products: function(barcode){
-            if ((_.isString(barcode) && barcode.length == 0) || (!barcode)){
-                return this.products;
-            }
-            try {
-                var re = RegExp("([0-9]+):.*?"+barcode.toUpperCase(),"gi");
-            }
-            catch(e) {
-                //avoid crash if a not supported char is given (like '\' or ')')
-	        return [];
-            }
-
-            var results = [];
-            for(var i = 0; i < 100; i++){
-                r = re.exec(this.product_search_string);
-                if(r){
-                    var product = this.products_by_id[Number(r[1])];
-                    if(product){
-                        results.push(product);
-                    }
-                }else{
-                    break;
-                }
-            }
-            return results;
-        },
-        on_searchbox: function(query){
-            var self = this;
-
-            clearTimeout(this.searchbox_timeout);
-            this.searchbox_timout = setTimeout(function(){
-                self.$('.content').html(
-                        QWeb.render('PickingProductsWidget',{products:self.search_products(query)})
-                    );
-                self.$('.js_products_table_todo .oe_product').click(function(){
-                    self.goto_product($(this).data('id'));
-                });
-                if(query){
-                    self.$('.js_picking_not_found').addClass('hidden');
-                    self.$('.js_picking_categories').addClass('hidden');
-                }else{
-                    self.$('.js_title_label').removeClass('hidden');
-                    self.$('.js_picking_categories').removeClass('hidden');
-                }
-            },100);
-        },
-        quit: function(){
-            return new instance.web.Model("ir.model.data").get_func("search_read")([['name', '=', 'action_picking_type_form']], ['res_id']).pipe(function(res) {
-                    window.location = '/web#action=' + res[0]['res_id'];
-                });
-        },
-        destroy: function(){
-            this._super();
-            instance.webclient.set_content_full_screen(false);
-        },
-    });
-    openerp.web.client_actions.add('stock.products', 'instance.stock.PickingProductsWidget');
-    
-    
-    
-    
-    
-    /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+     /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
     /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
     /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
     /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
     /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
-        
-    module.PickingListWidget = module.MobileWidget.extend({
-        template: 'PageWidget',
-        init: function(parent, params){
-            this._super(parent,params);
-            var self = this;
-            $(window).bind('hashchange', function(){
-                var states = $.bbq.getState();
-                if (states.action === "stock.product"){
-                    self.do_action({
-                        type:   'ir.actions.client',
-                        tag:    'stock.product',
-                        target: 'current',
-                    },{
-                        clear_breadcrumbs: true,
-                    });
-                }
-                else if (states.action === "stock.products"){
-                    self.do_action({
-                        type:   'ir.actions.client',
-                        tag:    'stock.products',
-                        target: 'current',
-                    },{
-                        clear_breadcrumbs: true,
-                    });
-                }
-                else if (states.action === "stock.menu"){
-                    self.do_action({
-                        type:   'ir.actions.client',
-                        tag:    'stock.menu',
-                        target: 'current',
-                    },{
-                        clear_breadcrumbs: true,
-                    });
-                }
-                else if (states.action === "stock.pickinglist"){
-                    self.do_action({
-                        type:   'ir.actions.client',
-                        tag:    'stock.pickinglist',
-                        target: 'current',
-                    },{
-                        clear_breadcrumbs: true,
-                    });
-                }
-                else if (states.action === "stock.ui"){
-                    self.do_action({
-                        type:   'ir.actions.client',
-                        tag:    'stock.ui',
-                        target: 'current',
-                    },{
-                        clear_breadcrumbs: true,
-                    });
-                }
-            });
-            init_hash = $.bbq.getState();
-            this.picking_type_code = init_hash.type ? init_hash.type:'incoming';
-
-            this.pickings = [];
-            this.picking_type_ids = [];
-            this.pickings_by_id = {};
-            this.pickings_search_string = "";
-            this.loaded = this.load();
-        },
-        load: function(){
-            var self = this;
-            
-            return new instance.web.Model("stock.picking.type")
-                .query(['id'])
-                .filter([['code', '=', self.picking_type_code],['active', '=', true]])
-                .all()
-                .then(function(picking_types) {
-                    self.picking_type_ids = [];
-                    for(var i = 0; i < picking_types.length; i++){
-                        self.picking_type_ids.push(picking_types[i].id);
-                    }
-                    return new instance.web.Model("stock.picking")
-                        .query(['id','name','date','partner_id','state','origin','min_date'])
-                        .filter([['picking_type_id', 'in', self.picking_type_ids],['state', 'in', ['assigned','partially_available']]])
-                        .order_by('date')
-                        .all()
-                }).then(function(picks) {
-                    self.pickings = [];
-                    picks.sort(function(a, b) {if(a.partner_id[1] == b.partner_id[1]){return a.date.localeCompare(b.date);} return a.partner_id[1].localeCompare(b.partner_id[1]);})
-
-                    var picking_states = {  draft:"Draft", 
-                                            cancel:"Cancelled", 
-                                            waiting:"Waiting Another Operation",
-                                            partially_available: "Partially Available",
-                                            confirmed:"Waiting Availability", 
-                                            assigned:"Ready to Transfer", 
-                                            done:"Transferred"
-                                         }
-                    
-                    for(var i = 0; i < picks.length; i++){
-                        var picking = picks[i];
-
-                        if(picking_states.hasOwnProperty(picking.state)){
-                            picking.state = picking_states[picking.state];
-                        }
-                        
-                        picking.partner = picking.partner_id ? picking.partner_id[1] : '';
-                        self.pickings_by_id[picking.id] = picking;
-                        self.pickings_search_string += '' + picking.id + ':' + (picking.partner ? picking.partner.toUpperCase(): '')
-                                                                            + (picking.origin ? picking.origin.toUpperCase(): '')
-                                                                            + (picking.name ? picking.name.toUpperCase(): '')
-                                                                            + '\n';
-                        self.pickings.push(picking)
-                    }
-                });
-        },
-        start_rendering: function(){
-            var self = this;
-            this.$('.oe_searchbox').keyup(function(event){
-                self.on_searchbox($(this).val());
-            });
-            this.$('#product_search_box').focus();
-            this.$('.js_pick_quit').click(function(){ self.quit(); });
-            self.$('.js_clear_search').click(function(){ self.$('#product_search_box').val(""); self.on_searchbox(""); self.$('#product_search_box').focus();});
-            self.$('.js_pick_menu').click(function(){ self.menu(); });
-            self.$('.js_pick_products').click(function(){ self.goto_products(); });
-            self.$('.js_pick_incomings').click(function(){ self.goto_incomings(); });
-            self.$('.js_pick_outgoings').click(function(){ self.goto_outgoings(); });
-            self.$('.content').html(QWeb.render('PickingListWidget',{pickings:self.pickings, type:self.picking_type_code.charAt(0).toUpperCase() + self.picking_type_code.slice(1).toLowerCase()}));
-            self.$('.js_products_table_todo .oe_product').click(function(){
-                self.goto_picking($(this).data('id'));
-            });
-        },
-        start: function(){
-            var self = this;
-            instance.webclient.set_content_full_screen(true);            
-            this.loaded.then(function(){
-               self.start_rendering();
-            });
-        },
-        menu: function(){
-            $.bbq.pushState('#action=stock.menu');
-            $(window).trigger('hashchange');
-        },
-        goto_products: function(){
-            $.bbq.pushState('#action=stock.products');
-            $(window).trigger('hashchange');
-        },
-        goto_incomings: function(){
-            $.bbq.pushState('#action=stock.pickinglist&type=incoming');
-            $(window).trigger('hashchange');
-        },
-        goto_outgoings: function(){
-            $.bbq.pushState('#action=stock.pickinglist&type=outgoing');
-            $(window).trigger('hashchange');
-        },
-        goto_picking: function(picking_id){
-            $.bbq.pushState('#action=stock.ui&picking_id='+picking_id);
-            $(window).trigger('hashchange');
-        },
-        search_products: function(barcode){
-            if ((_.isString(barcode) && barcode.length == 0) || (!barcode)){
-                return this.pickings;
-            }
-            try {
-                var re = RegExp("([0-9]+):.*?"+barcode.toUpperCase(),"gi");
-            }
-            catch(e) {
-                //avoid crash if a not supported char is given (like '\' or ')')
-	        return [];
-            }
-
-            var results = [];
-            for(var i = 0; i < 100; i++){
-                r = re.exec(this.pickings_search_string);
-                if(r){
-                    var picking = this.pickings_by_id[Number(r[1])];
-                    if(picking){
-                        results.push(picking);
-                    }
-                }else{
-                    break;
-                }
-            }
-            return results;
-        },
-        on_searchbox: function(query){
-            var self = this;
-
-            clearTimeout(this.searchbox_timeout);
-            this.searchbox_timout = setTimeout(function(){
-                self.$('.content').html(
-                        QWeb.render('PickingListWidget',{pickings:self.search_products(query), type:self.picking_type_code.charAt(0).toUpperCase() + self.picking_type_code.slice(1).toLowerCase()})
-                    );
-                self.$('.js_products_table_todo .oe_product').click(function(){
-                    self.goto_picking($(this).data('id'));
-                });
-                if(query){
-                    self.$('.js_picking_not_found').addClass('hidden');
-                    self.$('.js_picking_categories').addClass('hidden');
-                }else{
-                    self.$('.js_title_label').removeClass('hidden');
-                    self.$('.js_picking_categories').removeClass('hidden');
-                }
-            },100);
-        },
-        quit: function(){
-            return new instance.web.Model("ir.model.data").get_func("search_read")([['name', '=', 'action_picking_type_form']], ['res_id']).pipe(function(res) {
-                    window.location = '/web#action=' + res[0]['res_id'];
-                });
-        },
-        destroy: function(){
-            this._super();
-            instance.webclient.set_content_full_screen(false);
-        },
-    });
-    openerp.web.client_actions.add('stock.pickinglist', 'instance.stock.PickingListWidget');
-    
-    
-    
-    
-    
-    /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-    /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-    /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-    /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-    /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-
-    
-    
     
     module.PickingMainWidget = module.MobileWidget.extend({
         template: 'PickingMainNewWidget',
@@ -1130,6 +836,15 @@ function openerp_picking_widgets(instance){
                     self.do_action({
                         type:   'ir.actions.client',
                         tag:    'stock.pickinglist',
+                        target: 'current',
+                    },{
+                        clear_breadcrumbs: true,
+                    });
+                }
+                else if (states.action === "stock.partnerList"){
+                    self.do_action({
+                        type:   'ir.actions.client',
+                        tag:    'stock.partnerList',
                         target: 'current',
                     },{
                         clear_breadcrumbs: true,
@@ -1290,6 +1005,7 @@ function openerp_picking_widgets(instance){
             this.$('.js_pick_products').click(function(){ self.goto_products(); });
             this.$('.js_pick_incomings').click(function(){ self.goto_incomings(); });
             this.$('.js_pick_outgoings').click(function(){ self.goto_outgoings(); });
+            self.$('.js_pick_partners').click(function(){ self.goto_partners(); });
             this.$('.js_reload_op').click(function(){ self.reload_pack_operation();});
 
             $.when(this.loaded).done(function(){
@@ -1423,6 +1139,10 @@ function openerp_picking_widgets(instance){
         },
         goto_outgoings: function(){
             $.bbq.pushState('#action=stock.pickinglist&type=outgoing');
+            $(window).trigger('hashchange');
+        },
+        goto_partners: function(){
+            $.bbq.pushState('#action=stock.partnerList');
             $(window).trigger('hashchange');
         },
         scan: function(ean){ //scans a barcode, sends it to the server, then reload the ui
@@ -1642,50 +1362,301 @@ function openerp_picking_widgets(instance){
     /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
     
-    module.PickingProductWidget = module.MobileWidget.extend({
-        template: 'PageWidget',
+    module.PickingProductsWidget = module.PageWidget.extend({
+        init: function(parent, params){
+            this._super(parent,params);
+            var self = this;
+            this.products = [];
+            this.product_templates = {};
+            this.loaded = this.load();
+            this.products_by_id = {};
+            this.product_search_string = "";
+        },
+        load: function(){
+            var self = this;
+            return new instance.web.Model("product.template")
+                .query(['id','product_brand_id'])
+                .filter([['type', '=', 'product']])
+                .all()
+                .then(function(product_tmpls) {
+                    for(var i = 0; i < product_tmpls.length; i++){
+                        var product_template = product_tmpls[i];
+                        self.product_templates[product_template.id] = product_template.product_brand_id[1];
+                    }
+                    return new instance.web.Model("product.product")
+                        .query(['id','name','ean13','default_code','product_tmpl_id'])
+                        .filter([['active', '=', true]])
+                        .order_by('name')
+                        .all()
+                }).then(function(prods) {
+                    for(var i = 0; i < prods.length; i++){
+                        var product = prods[i];
+                        if (!self.product_templates[product.product_tmpl_id[0]]){continue;}
+                        product.ean13 = product.ean13 ? product.ean13 : ""
+                        product.brand = product.product_tmpl_id[0] ? self.product_templates[product.product_tmpl_id[0]] : "";
+                        self.products_by_id[product.id] = product;
+                        self.products.push(product)
+                    }
+                    self.products.sort(function(a, b) {
+                        return a.brand.localeCompare(b.brand);
+                    })
+                    for(var i = 0; i < self.products.length; i++){
+                        var product = self.products[i];
+                        self.product_search_string += '' + product.id + ':' + (product.ean13 ? product.ean13.toUpperCase(): '') 
+                                                                            + (product.name ? product.name.toUpperCase(): '') 
+                                                                            + (product.brand ? product.brand.toUpperCase(): '') 
+                                                                            + (product.default_code ? product.default_code.toUpperCase(): '') 
+                                                                            + '\n';
+                    }
+                });
+        },
+        start_rendering: function(){
+            var self = this;
+            this.$('.oe_searchbox').keyup(function(event){
+                self.on_searchbox($(this).val());
+            });
+            this.$('#product_search_box').focus();
+            self.$('.js_clear_search').click(function(){ self.$('#product_search_box').val(""); self.on_searchbox(""); self.$('#product_search_box').focus();});
+            self.$('.content').html(QWeb.render('PickingProductsWidget',{products:self.products}));
+            self.$('.js_products_table_todo .oe_product').click(function(){
+                self.goto_product($(this).data('id'));
+            });
+        },
+        start: function(){
+            this._super()
+            var self = this;
+            instance.webclient.set_content_full_screen(true);            
+            this.loaded.then(function(){
+               self.start_rendering();
+            });
+        },
+        goto_product: function(product_id){
+            $.bbq.pushState('#action=stock.product&product_id='+product_id);
+            $(window).trigger('hashchange');
+        },
+        search_products: function(barcode){
+            if ((_.isString(barcode) && barcode.length == 0) || (!barcode)){
+                return this.products;
+            }
+            try {
+                var re = RegExp("([0-9]+):.*?"+barcode.toUpperCase(),"gi");
+            }
+            catch(e) {
+                //avoid crash if a not supported char is given (like '\' or ')')
+	        return [];
+            }
+
+            var results = [];
+            for(var i = 0; i < 100; i++){
+                r = re.exec(this.product_search_string);
+                if(r){
+                    var product = this.products_by_id[Number(r[1])];
+                    if(product){
+                        results.push(product);
+                    }
+                }else{
+                    break;
+                }
+            }
+            return results;
+        },
+        on_searchbox: function(query){
+            var self = this;
+
+            clearTimeout(this.searchbox_timeout);
+            this.searchbox_timout = setTimeout(function(){
+                self.$('.content').html(
+                        QWeb.render('PickingProductsWidget',{products:self.search_products(query)})
+                    );
+                self.$('.js_products_table_todo .oe_product').click(function(){
+                    self.goto_product($(this).data('id'));
+                });
+                if(query){
+                    self.$('.js_picking_not_found').addClass('hidden');
+                    self.$('.js_picking_categories').addClass('hidden');
+                }else{
+                    self.$('.js_title_label').removeClass('hidden');
+                    self.$('.js_picking_categories').removeClass('hidden');
+                }
+            },100);
+        },
+        quit: function(){
+            return new instance.web.Model("ir.model.data").get_func("search_read")([['name', '=', 'action_picking_type_form']], ['res_id']).pipe(function(res) {
+                    window.location = '/web#action=' + res[0]['res_id'];
+                });
+        },
+        destroy: function(){
+            this._super();
+            instance.webclient.set_content_full_screen(false);
+        },
+    });
+    openerp.web.client_actions.add('stock.products', 'instance.stock.PickingProductsWidget');
+    
+    
+    
+    
+    
+    /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+    /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+    /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+    /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+    /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+        
+    module.PickingListWidget = module.PageWidget.extend({
+        init: function(parent, params){
+            this._super(parent,params);
+            var self = this;
+            init_hash = $.bbq.getState();
+            this.picking_type_code = init_hash.type ? init_hash.type:'incoming';
+
+            this.pickings = [];
+            this.picking_type_ids = [];
+            this.pickings_by_id = {};
+            this.pickings_search_string = "";
+            this.loaded = this.load();
+        },
+        load: function(){
+            var self = this;
+            
+            return new instance.web.Model("stock.picking.type")
+                .query(['id'])
+                .filter([['code', '=', self.picking_type_code],['active', '=', true]])
+                .all()
+                .then(function(picking_types) {
+                    self.picking_type_ids = [];
+                    for(var i = 0; i < picking_types.length; i++){
+                        self.picking_type_ids.push(picking_types[i].id);
+                    }
+                    return new instance.web.Model("stock.picking")
+                        .query(['id','name','date','partner_id','state','origin','min_date'])
+                        .filter([['picking_type_id', 'in', self.picking_type_ids],['state', 'in', ['assigned','partially_available']]])
+                        .order_by('date')
+                        .all()
+                }).then(function(picks) {
+                    self.pickings = [];
+                    picks.sort(function(a, b) {if(a.partner_id[1] == b.partner_id[1]){return a.date.localeCompare(b.date);} return a.partner_id[1].localeCompare(b.partner_id[1]);})
+
+                    var picking_states = {  draft:"Draft", 
+                                            cancel:"Cancelled", 
+                                            waiting:"Waiting Another Operation",
+                                            partially_available: "Partially Available",
+                                            confirmed:"Waiting Availability", 
+                                            assigned:"Ready to Transfer", 
+                                            done:"Transferred"
+                                         }
+                    
+                    for(var i = 0; i < picks.length; i++){
+                        var picking = picks[i];
+
+                        if(picking_states.hasOwnProperty(picking.state)){
+                            picking.state = picking_states[picking.state];
+                        }
+                        
+                        picking.partner = picking.partner_id ? picking.partner_id[1] : '';
+                        self.pickings_by_id[picking.id] = picking;
+                        self.pickings_search_string += '' + picking.id + ':' + (picking.partner ? picking.partner.toUpperCase(): '')
+                                                                            + (picking.origin ? picking.origin.toUpperCase(): '')
+                                                                            + (picking.name ? picking.name.toUpperCase(): '')
+                                                                            + '\n';
+                        self.pickings.push(picking)
+                    }
+                });
+        },
+        start_rendering: function(){
+            var self = this;
+            this.$('.oe_searchbox').keyup(function(event){
+                self.on_searchbox($(this).val());
+            });
+            this.$('#product_search_box').focus();
+            self.$('.js_clear_search').click(function(){ self.$('#product_search_box').val(""); self.on_searchbox(""); self.$('#product_search_box').focus();});
+            self.$('.content').html(QWeb.render('PickingListWidget',{pickings:self.pickings, type:self.picking_type_code.charAt(0).toUpperCase() + self.picking_type_code.slice(1).toLowerCase()}));
+            self.$('.js_products_table_todo .oe_product').click(function(){
+                self.goto_picking($(this).data('id'));
+            });
+        },
+        start: function(){
+            this._super()
+            var self = this;
+            instance.webclient.set_content_full_screen(true);            
+            this.loaded.then(function(){
+               self.start_rendering();
+            });
+        },
+        goto_picking: function(picking_id){
+            $.bbq.pushState('#action=stock.ui&picking_id='+picking_id);
+            $(window).trigger('hashchange');
+        },
+        search_products: function(barcode){
+            if ((_.isString(barcode) && barcode.length == 0) || (!barcode)){
+                return this.pickings;
+            }
+            try {
+                var re = RegExp("([0-9]+):.*?"+barcode.toUpperCase(),"gi");
+            }
+            catch(e) {
+                //avoid crash if a not supported char is given (like '\' or ')')
+	        return [];
+            }
+
+            var results = [];
+            for(var i = 0; i < 100; i++){
+                r = re.exec(this.pickings_search_string);
+                if(r){
+                    var picking = this.pickings_by_id[Number(r[1])];
+                    if(picking){
+                        results.push(picking);
+                    }
+                }else{
+                    break;
+                }
+            }
+            return results;
+        },
+        on_searchbox: function(query){
+            var self = this;
+
+            clearTimeout(this.searchbox_timeout);
+            this.searchbox_timout = setTimeout(function(){
+                self.$('.content').html(
+                        QWeb.render('PickingListWidget',{pickings:self.search_products(query), type:self.picking_type_code.charAt(0).toUpperCase() + self.picking_type_code.slice(1).toLowerCase()})
+                    );
+                self.$('.js_products_table_todo .oe_product').click(function(){
+                    self.goto_picking($(this).data('id'));
+                });
+                if(query){
+                    self.$('.js_picking_not_found').addClass('hidden');
+                    self.$('.js_picking_categories').addClass('hidden');
+                }else{
+                    self.$('.js_title_label').removeClass('hidden');
+                    self.$('.js_picking_categories').removeClass('hidden');
+                }
+            },100);
+        },
+        quit: function(){
+            return new instance.web.Model("ir.model.data").get_func("search_read")([['name', '=', 'action_picking_type_form']], ['res_id']).pipe(function(res) {
+                    window.location = '/web#action=' + res[0]['res_id'];
+                });
+        },
+        destroy: function(){
+            this._super();
+            instance.webclient.set_content_full_screen(false);
+        },
+    });
+    openerp.web.client_actions.add('stock.pickinglist', 'instance.stock.PickingListWidget');
+    
+    
+    /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+    /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+    /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+    /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+    /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+    
+    module.PickingProductWidget = module.PageWidget.extend({
         init: function(parent,params){
             this._super(parent,params);
             var self = this;
-            $(window).bind('hashchange', function(){
-                var states = $.bbq.getState();
-                if (states.action === "stock.products"){
-                    self.do_action({
-                        type:   'ir.actions.client',
-                        tag:    'stock.products',
-                        target: 'current',
-                    },{
-                        clear_breadcrumbs: true,
-                    });
-                }
-                else if (states.action === "stock.menu"){
-                    self.do_action({
-                        type:   'ir.actions.client',
-                        tag:    'stock.menu',
-                        target: 'current',
-                    },{
-                        clear_breadcrumbs: true,
-                    });
-                }
-                else if (states.action === "stock.ui"){
-                    self.do_action({
-                        type:   'ir.actions.client',
-                        tag:    'stock.ui',
-                        target: 'current',
-                    },{
-                        clear_breadcrumbs: true,
-                    });
-                }
-                else if (states.action === "stock.pickinglist"){
-                    self.do_action({
-                        type:   'ir.actions.client',
-                        tag:    'stock.pickinglist',
-                        target: 'current',
-                    },{
-                        clear_breadcrumbs: true,
-                    });
-                }
-            });
             init_hash = $.bbq.getState();
             this.product_id = init_hash.product_id ? init_hash.product_id:0;
             this.product = null;
@@ -1778,54 +1749,22 @@ function openerp_picking_widgets(instance){
             }
 
         },
-
         start: function(){
+            this._super();
             var self = this;
             instance.webclient.set_content_full_screen(true);
-            
             this.loaded.then(function(){
                self.$('.content').html(QWeb.render('PickingProductWidget',{product:self.product, pickings_per_types: self.pickings_per_types}));
-               self.$('.js_pick_menu').click(function(){ self.menu(); });
-               self.$('.js_pick_products').click(function(){ self.goto_products(); });
-               self.$('.js_pick_incomings').click(function(){ self.goto_incomings(); });
-               self.$('.js_pick_outgoings').click(function(){ self.goto_outgoings(); });
                self.$('#product_search_box').hide();
                self.$('.js_clear_search').hide();
                self.$('.oe_picking').click(function(){
-                        self.goto_picking($(this).data('id'));
-                    });
+                   self.goto_picking($(this).data('id'));
+               });
             });
-        },
-
-        menu: function(){
-            $.bbq.pushState('#action=stock.menu');
-            $(window).trigger('hashchange');
         },
         goto_picking: function(picking_id){
             $.bbq.pushState('#action=stock.ui&picking_id='+picking_id);
             $(window).trigger('hashchange');
-        },
-        goto_products: function(){
-            $.bbq.pushState('#action=stock.products');
-            $(window).trigger('hashchange');
-        },
-        goto_incomings: function(){
-            $.bbq.pushState('#action=stock.pickinglist&type=incoming');
-            $(window).trigger('hashchange');
-        },
-        goto_outgoings: function(){
-            $.bbq.pushState('#action=stock.pickinglist&type=outgoing');
-            $(window).trigger('hashchange');
-        },
-        quit: function(){
-            this.destroy();
-            return new instance.web.Model("ir.model.data").get_func("search_read")([['name', '=', 'action_picking_type_form']], ['res_id']).pipe(function(res) {
-                    window.location = '/web#action=' + res[0]['res_id'];
-                });
-        },
-        destroy: function(){
-            this._super();
-            instance.webclient.set_content_full_screen(false);
         },
     });
     openerp.web.client_actions.add('stock.product', 'instance.stock.PickingProductWidget');
@@ -1838,8 +1777,204 @@ function openerp_picking_widgets(instance){
     /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
     /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
-    
+    module.PartnerListWidget = module.PageWidget.extend({
+        init: function(parent, params){
+            this._super(parent,params);
+            init_hash = $.bbq.getState();
+            this.partner_type = init_hash.type ? String(init_hash.type): 'noType';
 
+            this.partners = [];
+            this.partners_by_id = {};
+            this.partner_search_string = "";
+            this.loaded = this.load();
+        },
+        load: function(){
+            var self = this;
+            return new instance.web.Model("stock.picking")
+                .query(['id','partner_id'])
+                .filter([['state', 'in', ['assigned','partially_available']]])
+                .order_by('date')
+                .all()
+                .then(function(pickings) {
+                    var partners_ids = [];
+                    for(var i = 0; i < pickings.length; i++){
+                        var picking = pickings[i];
+                        if(!(picking.partner_id[0] in self.partners_by_id)){
+                            self.partners_by_id[picking.partner_id[0]] = {id:picking.partner_id[0], name:picking.partner_id[1]};
+                            partners_ids.push(picking.partner_id[0]);
+                        }
+                    }
+                    
+                    conditions = []
+                    conditions.push(['id', 'in', partners_ids])
+                    if (['customer','supplier'].indexOf(self.partner_type)!=-1){
+                        conditions.push([self.partner_type,'=',true]);
+                    } 
+
+                    return new instance.web.Model("res.partner")
+                        .query(['id','name'])
+                        .filter(conditions)
+                        .all()
+                }).then(function(ptrs) {
+                    self.partners = ptrs
+                    self.partners.sort(function(a, b) {
+                        return a.name.localeCompare(b.name);
+                    })
+                    for(var i = 0; i < self.partners.length; i++){
+                        var partner = self.partners[i];
+                        self.partner_search_string += '' + partner.id + ':' + (partner.name ? partner.name.toUpperCase(): '') 
+                                                                            + '\n';
+                    }
+                });        
+        },
+        start_rendering: function(){
+            var self = this;
+            
+            self.$('.oe_searchbox').keyup(function(event){
+                self.on_searchbox($(this).val());
+            });
+            self.$('#product_search_box').focus();
+            self.$('.js_clear_search').click(function(){ self.$('#product_search_box').val(""); self.on_searchbox(""); self.$('#product_search_box').focus();});
+
+            self.$('.content').html(QWeb.render('PartnerListWidget',{partners:self.partners}));
+            self.$('.js_products_table_todo .oe_product').click(function(){
+                self.goto_partner($(this).data('id'));
+            });
+        },
+        start: function(){
+            this._super();
+            var self = this;
+            instance.webclient.set_content_full_screen(true);            
+            this.loaded.then(function(){
+               self.start_rendering();
+            });
+        },
+        goto_partner: function(id){
+            $.bbq.pushState('#action=stock.partnerMoves&partner_id='+id);
+            $(window).trigger('hashchange');
+        },
+        search_partners: function(barcode){
+            if ((_.isString(barcode) && barcode.length == 0) || (!barcode)){
+                return this.partners;
+            }
+            try {
+                var re = RegExp("([0-9]+):.*?"+barcode.toUpperCase(),"gi");
+            }
+            catch(e) {
+                //avoid crash if a not supported char is given (like '\' or ')')
+	        return [];
+            }
+
+            var results = [];
+            for(var i = 0; i < 100; i++){
+                r = re.exec(this.partner_search_string);
+                if(r){
+                    var partner = this.partners_by_id[Number(r[1])];
+                    if(partner){
+                        results.push(partner);
+                    }
+                }else{
+                    break;
+                }
+            }
+            return results;
+        },
+        on_searchbox: function(query){
+            var self = this;
+
+            clearTimeout(this.searchbox_timeout);
+            this.searchbox_timout = setTimeout(function(){
+                self.$('.content').html(
+                        QWeb.render('PartnerListWidget',{partners:self.search_partners(query)})
+                    );
+                self.$('.js_products_table_todo .oe_product').click(function(){
+                    self.goto_partner($(this).data('id'));
+                });
+                if(query){
+                    self.$('.js_picking_not_found').addClass('hidden');
+                    self.$('.js_picking_categories').addClass('hidden');
+                }else{
+                    self.$('.js_title_label').removeClass('hidden');
+                    self.$('.js_picking_categories').removeClass('hidden');
+                }
+            },100);
+        },
+    });
+    openerp.web.client_actions.add('stock.partnerList', 'instance.stock.PartnerListWidget');
+    
+    /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+    /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+    /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+    /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+    /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+    module.PartnerMovesWidget = module.PageWidget.extend({
+        init: function(parent,params){
+            this._super(parent,params);
+            init_hash = $.bbq.getState();
+            this.partner_id = init_hash.partner_id ? init_hash.partner_id:0;
+            this.stock_moves = [];
+            this.picking_ids = [];
+            this.partner = null;
+            this.loaded = this.load(this.partner_id);
+        },
+
+        load: function(partner_id){
+            var self = this;
+
+            return new instance.web.Model("stock.picking")
+                .query(['id'])
+                .filter([['state', 'in', ['assigned','partially_available']],['partner_id','=',parseInt(partner_id)]])
+                .order_by('date')
+                .all()
+                .then(function(pickings) {
+                    for(var i = 0; i < pickings.length; i++){
+                        self.picking_ids.push(pickings[i].id)
+                    }
+                 return new instance.web.Model("stock.move")
+                    .query(['id','product_qty','product_uom','product_id','picking_id'])
+                    .filter([['picking_id', 'in', self.picking_ids]])
+                    .order_by('date')
+                    .all()
+                }).then(function(moves) {
+                     self.stock_moves = moves
+                     return new instance.web.Model("res.partner")
+                        .query(['id','name'])
+                        .filter([['id', '=', partner_id]])
+                        .first()
+                }).then(function(ptr) {
+                    self.partner = ptr;
+                 
+                });
+        },
+        start: function(){
+            this._super();
+            var self = this;
+            instance.webclient.set_content_full_screen(true);
+            this.loaded.then(function(){
+               self.$('.content').html(QWeb.render('PartnerMovesWidget',{partner:self.partner, stock_moves: self.stock_moves}));
+               self.$('#product_search_box').hide();
+               self.$('.js_clear_search').hide();
+               self.$('.oe_picking').click(function(){
+                   self.goto_picking($(this).data('id'));
+               });
+            });
+        },
+        goto_picking: function(picking_id){
+            $.bbq.pushState('#action=stock.ui&picking_id='+picking_id);
+            $(window).trigger('hashchange');
+        },
+    });
+    openerp.web.client_actions.add('stock.partnerMoves', 'instance.stock.PartnerMovesWidget');
+
+    
+    /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+    /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+    /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+    /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+    /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+    
     module.BarcodeScanner = instance.web.Class.extend({
         connect: function(callback){
             var code = "";
@@ -1875,7 +2010,6 @@ function openerp_picking_widgets(instance){
             $('body').off('keypress', this.handler);
         },
     });
-
 }
 
 openerp.stock = function(openerp) {
