@@ -71,31 +71,36 @@
         </div>
         
         <div class="row">
-                <div>
-                    <div class="col-sm-9 col-xs-6">
-                        <h2 class="oe_pick_app_header" />
-                        <!-- modified, added-->
-                        <table class="table table-condensed">
-                            <tr>
-                                <t t-foreach="widget.get_header_info()" t-as="info">
-                                    <th><t t-esc="info.key"/></th>
-                                </t>
-                            </tr>
-                            <tr>
-                                <t t-foreach="widget.get_header_info()" t-as="info">
-                                    <td t-att-style="info.css"><t t-esc="info.value"/></td>
-                                </t>
-                            </tr>
-                        </table>
-                    </div>
-                    <div class="col-sm-3 col-xs⁻6 text-right">
-
+            <!-- modified -->
+            <div>
+                <div class="col-sm-6 col-xs-6">
+                    <h2 class="oe_pick_app_header"/>
+                </div>
+                <div class="col-sm-6 col-xs⁻6 text-right">
                     <button type="button" class='btn btn-default js_pick_done'>Create backorder</button>
                     <button type="button" class='btn btn-default js_pick_print'>Print Document</button>
                     <button type="button" class='btn btn-default js_pick_print_labels'>Print Labels</button>
-
-                    </div>
                 </div>
+            </div>
+            <div>
+                <table class="table table-condensed">  
+                    <tr>
+                        <th>Partner</th>
+                        <t t-foreach="widget.get_header_info()" t-as="info">
+                            <th><t t-esc="info.key"/></th>
+                        </t>
+                    </tr>
+                    <tr>
+                        <td style="font-size: 18px;font-weight: bold;">
+                            <t t-if="widget.picking.partner.parent_id"><span t-esc="widget.picking.partner.parent_id[1]"/>: </t><t t-esc="widget.picking.partner.name" /> 
+                            <br/> <small><t t-esc="widget.picking.partner.street" /> - <t t-esc="widget.picking.partner.zip" /> <t t-esc="widget.picking.partner.city" />, <t t-esc="widget.picking.partner.phone"/></small>
+                        </td>
+                        <t t-foreach="widget.get_header_info()" t-as="info">
+                            <td t-att-style="info.css"><t t-esc="info.value"/></td>
+                        </t>
+                    </tr>
+                </table>
+            </div>
         </div>
 
         <div class="row">
@@ -254,8 +259,10 @@
                     <button type="button" class="btn btn-primary navbar-btn js_pick_menu">Menu</button>
                     <button type="button" class="btn btn-primary navbar-btn js_pick_incomings">Incomings</button>
                     <button type="button" class="btn btn-primary navbar-btn js_pick_outgoings">Outgoings</button>
-                    <button type="button" class="btn btn-primary navbar-btn js_pick_products">Products</button>
-                    <button type="button" class="btn btn-primary navbar-btn js_pick_partners">Partners</button>
+                    <button type="button" class="btn btn-primary navbar-btn js_pick_products">All Products</button>
+                    <button type="button" class="btn btn-primary navbar-btn js_pick_moves_products">Moves Products</button>
+                    <button type="button" class="btn btn-primary navbar-btn js_pick_customers">Customers</button>
+                    <button type="button" class="btn btn-primary navbar-btn js_pick_suppliers">Suppliers</button>
                 </div>
                 <div class="navbar-header navbar-form navbar-right">
                     <button type="button" class="btn btn-danger js_pick_quit pull-right">Quit</button>
@@ -345,12 +352,14 @@
     <t t-name="PartnerListWidget">
         <div class="container">
 
-            <h1 class="js_title_label">Partners (Suppliers and Customers)</h1>
+            <h1 class="js_title_label text-capitalize"><t t-esc="type"/></h1>
             <div class="row">
                 <table class='table table-striped'>
                     <thead>
                         <tr>
-                            <th class="text-center" style="font-size: 18px;">PARTNERS</th>
+                            <th class="text-center" style="font-size: 18px;">Name</th>
+                            <th class="text-center" style="font-size: 18px;">Address</th>
+                            <th class="text-center" style="font-size: 18px;">Phone</th>
                         </tr>
                     </thead>
                     <tbody class='js_products_table_todo'>
@@ -364,8 +373,14 @@
                         <t t-if="partners.length > 0">
                             <t t-foreach="partners" t-as="partner">
                                 <tr t-att-data-id="partner.id" class="oe_product">
-                                    <td t-att-class="'brctbl-col1 text-left text-uppercase'" t-att-style="'font-size: 18px;'">
+                                    <td t-att-class="'brctbl-col1 text-left text-uppercase'">
                                         <t t-esc="partner.name" />
+                                    </td>
+                                    <td t-att-class="'brctbl-col12 text-left'">
+                                        <t t-esc="partner.street" /> - <t t-esc="partner.zip" /> <t t-esc="partner.city" />                                      
+                                    </td>
+                                    <td t-att-class="'brctbl-col3 text-left'">
+                                        <t t-esc="partner.phone"/>                                    
                                     </td>
                                 </tr>
                             </t>
@@ -378,7 +393,7 @@
     
     <t t-name="PartnerMovesWidget">
         <div class="container">
-            <h1 class="js_title_label">Partner: <t t-esc="partner.name" /></h1>
+            <h1><t t-esc="partner.name" /> <br/> <small><t t-esc="partner.street" /> - <t t-esc="partner.zip" /> <t t-esc="partner.city" />, <t t-esc="partner.phone"/></small></h1>
             <h3>Moves</h3>
             <div class="row">
                 <table class='table table-striped'>
@@ -387,6 +402,8 @@
                             <th class="text-left">Product</th>
                             <th class="text-left">Quantity</th>
                             <th class="text-left">Picking name</th>
+                            <th class="text-left">Picking state</th>
+                            <th class="text-left">Move status</th>
                         </tr>
                     </thead>
                     <tbody class='js_products_table_todo'>
@@ -399,7 +416,7 @@
                         </t>
                         <t t-if="stock_moves.length > 0">
                             <t t-foreach="stock_moves" t-as="stock_move">
-                                <tr t-att-data-id="stock_move.picking_id[0]" class="oe_picking">
+                                <tr t-att-data-id="stock_move.picking_id.id" class="oe_picking">
                                     <td t-att-class="'brctbl-col1 text-left'">
                                         <t t-esc="stock_move.product_id[1]" />
                                     </td>
@@ -407,7 +424,13 @@
                                         <t t-esc="stock_move.product_qty" /> <t t-esc="stock_move.product_uom[1]" />
                                     </td>
                                     <td t-att-class="'brctbl-col3 text-left'">
-                                        <t t-esc="stock_move.picking_id[1]" />
+                                        <t t-esc="stock_move.picking_id.name" />
+                                    </td>
+                                    <td t-att-class="'brctbl-col3 text-left'">
+                                        <t t-esc="stock_move.picking_id.state" />
+                                    </td>
+                                    <td t-att-class="'brctbl-col3 text-left'">
+                                        <t t-esc="stock_move.state" />
                                     </td>
                                 </tr>
                             </t>
@@ -483,8 +506,10 @@
                     <button type="button" class="btn btn-primary navbar-btn js_pick_menu">Menu</button>
                     <button type="button" class="btn btn-primary navbar-btn js_pick_incomings">Incomings</button>
                     <button type="button" class="btn btn-primary navbar-btn js_pick_outgoings">Outgoings</button>
-                    <button type="button" class="btn btn-primary navbar-btn js_pick_products">Products</button>
-                    <button type="button" class="btn btn-primary navbar-btn js_pick_partners">Partners</button>
+                    <button type="button" class="btn btn-primary navbar-btn js_pick_products">All Products</button>
+                    <button type="button" class="btn btn-primary navbar-btn js_pick_moves_products">Moves Products</button>
+                    <button type="button" class="btn btn-primary navbar-btn js_pick_customers">Customers</button>
+                    <button type="button" class="btn btn-primary navbar-btn js_pick_suppliers">Suppliers</button>
                 </div>
                 <div class="navbar-right">
                     <button type="button" class="btn btn-default navbar-btn js_pick_prev">&lt; Previous</button>
@@ -645,10 +670,10 @@
                     <button type="button" class="btn btn-primary navbar-btn js_pick_menu">Menu</button>
                     <button type="button" class="btn btn-primary navbar-btn js_pick_incomings">Incomings</button>
                     <button type="button" class="btn btn-primary navbar-btn js_pick_outgoings">Outgoings</button>
-                    <button type="button" class="btn btn-primary navbar-btn js_pick_products">Products</button>
+                    <button type="button" class="btn btn-primary navbar-btn js_pick_products">All Products</button>
+                    <button type="button" class="btn btn-primary navbar-btn js_pick_moves_products">Moves Products</button>
                     <button type="button" class="btn btn-primary navbar-btn js_pick_customers">Customers</button>
                     <button type="button" class="btn btn-primary navbar-btn js_pick_suppliers">Suppliers</button>
-                    <button type="button" class="btn btn-primary navbar-btn js_pick_partners">Partners</button>
                 </div>
                 <div class="navbar-header navbar-form navbar-right">
                     <button type="button" class="btn btn-danger js_pick_quit pull-right">Quit</button>
