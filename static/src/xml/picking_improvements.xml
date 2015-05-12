@@ -92,8 +92,9 @@
                     </tr>
                     <tr>
                         <td style="font-size: 18px;font-weight: bold;">
-                            <t t-if="widget.picking.partner.parent_id"><span t-esc="widget.picking.partner.parent_id[1]"/>: </t><t t-esc="widget.picking.partner.name" /> 
-                            <br/> <small><t t-esc="widget.picking.partner.street" /> - <t t-esc="widget.picking.partner.zip" /> <t t-esc="widget.picking.partner.city" />, <t t-esc="widget.picking.partner.phone"/></small>
+                            <t t-set="picking" t-value="widget.get_picking()"/>
+                            <t t-if="picking.partner.parent_id"><span t-esc="picking.partner.parent_id[1]"/>: </t><t t-esc="picking.partner.name" /> 
+                            <br/> <small><t t-esc="picking.partner.street" /> - <t t-esc="picking.partner.zip" /> <t t-esc="picking.partner.city" />, <t t-esc="picking.partner.phone"/></small>
                         </td>
                         <t t-foreach="widget.get_header_info()" t-as="info">
                             <td t-att-style="info.css"><t t-esc="info.value"/></td>
@@ -374,7 +375,7 @@
                             <t t-foreach="partners" t-as="partner">
                                 <tr t-att-data-id="partner.id" class="oe_product">
                                     <td t-att-class="'brctbl-col1 text-left text-uppercase'">
-                                        <t t-esc="partner.name" />
+                                        <t t-if="partner.parent_id"><span t-esc="partner.parent_id[1]"/>: </t><t t-esc="partner.name" />
                                     </td>
                                     <td t-att-class="'brctbl-col12 text-left'">
                                         <t t-esc="partner.street" /> - <t t-esc="partner.zip" /> <t t-esc="partner.city" />                                      
