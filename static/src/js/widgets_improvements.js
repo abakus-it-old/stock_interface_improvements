@@ -155,7 +155,6 @@ function openerp_picking_widgets(instance){
             var self = this;
             this.rows = [];
             this.search_filter = "";
-            this.picking = this.getParent().picking;
             jQuery.expr[":"].Contains = jQuery.expr.createPseudo(function(arg) {
                 return function( elem ) {
                     return jQuery(elem).text().toUpperCase().indexOf(arg.toUpperCase()) >= 0;
@@ -167,6 +166,9 @@ function openerp_picking_widgets(instance){
         },
         get_header_info: function(){
             return this.getParent().get_header_info();
+        },
+        get_picking: function(){
+            return this.getParent().get_picking();
         },
         get_location: function(){
             var model = this.getParent();
@@ -1153,6 +1155,9 @@ function openerp_picking_widgets(instance){
                 return [];
             }
         },
+        get_picking: function(){
+            return this.picking;
+        },
         menu: function(){
             $.bbq.pushState('#action=stock.menu');
             $(window).trigger('hashchange');
@@ -1911,13 +1916,18 @@ function openerp_picking_widgets(instance){
                     } 
 
                     return new instance.web.Model("res.partner")
-                        .query(['id','name','street','zip','city','phone'])
+                        .query(['id','name','street','zip','city','phone','parent_id'])
                         .filter(conditions)
                         .all()
                 }).then(function(ptrs) {
                     self.partners = ptrs
                     self.partners.sort(function(a, b) {
-                        return a.name.localeCompare(b.name);
+                        var x,y;
+                        x=a.name;
+                        y=b.name;
+                        if(a.parent_id){x=a.parent_id[1]}
+                        if(b.parent_id){y=b.parent_id[1]}
+                        return x.localeCompare(y);
                     })
                     for(var i = 0; i < self.partners.length; i++){
                         var partner = self.partners[i];
