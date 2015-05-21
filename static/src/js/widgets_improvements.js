@@ -2288,22 +2288,14 @@ function openerp_picking_widgets(instance){
             self.$('.js_minus').unbind();
             self.$('.js_minus').click(function(){
                 if (parseInt(self.$('.js_qty').val()) > 0 ){
-                    var val = parseInt(self.$('.js_qty').val())-1;
-                    self.product_qty = val;
-                    self.$('.js_qty').val(val);
+                    self.$('.js_qty').val(parseInt(self.$('.js_qty').val())-1);
                     toastr.success('-1');
                 }
             });
             self.$('.js_plus').unbind();
             self.$('.js_plus').click(function(){
-                var val = parseInt(self.$('.js_qty').val())+1;
-                self.product_qty = val;
-                self.$('.js_qty').val(val);
+                self.$('.js_qty').val(parseInt(self.$('.js_qty').val())+1);
                 toastr.success('+1');
-            });
-
-            self.$(".js_qty").change(function() {
-                self.product_qty = parseInt($(this).val());
             });
             
             self.$('.js_confirm_product').unbind();
@@ -2313,8 +2305,11 @@ function openerp_picking_widgets(instance){
         },
         render_incoming_selection: function(){
             var self = this;
-            if(self.product != null && parseInt(self.$('.js_qty').val())>0)
+            var qty = parseInt(self.$('.js_qty').val());
+            self.product_qty = qty;
+            if(self.product != null && qty>0)
             {
+                
                 self.stock_picking_type = 'incoming';
                 self.loadPickings().then(function(){
                     self.barcode_scanner.disconnect();
@@ -2554,9 +2549,7 @@ function openerp_picking_widgets(instance){
                         toastr.error('Product not found');
                     }
                     else if(self.product_tmp && self.product && self.product_tmp.id==self.product.id){
-                        var val = parseInt(self.$('.js_qty').val())+1;
-                        self.product_qty = val;
-                        self.$('.js_qty').val(val);
+                        self.$('.js_qty').val(parseInt(self.$('.js_qty').val())+1);
                         toastr.success('+1');
                     }
                     else if(self.product_tmp && self.product && self.product_tmp.id!=self.product.id){
