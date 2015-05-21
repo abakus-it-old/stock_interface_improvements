@@ -255,9 +255,10 @@
     <t t-name="PickingMenuNewWidget">
         <div class="navbar navbar-inverse navbar-static-top" role="navigation">
             <div class="container">
-                <div class="navbar-header navbar-form navbar-left">
+                <div class="navbar-header navbar-form navbar-left" style="width: 1170px;">
                     <input type='text' class="oe_searchbox form-control" placeholder='Search'/>
                     <button type="button" class="btn btn-primary navbar-btn js_pick_menu">Menu</button>
+                    <button type="button" class="btn btn-primary navbar-btn js_pick_incoming_product" style="background-color: orange;">Incoming Product</button>
                     <button type="button" class="btn btn-primary navbar-btn js_pick_incomings">Incomings</button>
                     <button type="button" class="btn btn-primary navbar-btn js_pick_outgoings">Outgoings</button>
                     <button type="button" class="btn btn-primary navbar-btn js_pick_products">All Products</button>
@@ -266,7 +267,7 @@
                     <button type="button" class="btn btn-primary navbar-btn js_pick_suppliers">Suppliers</button>
                 </div>
                 <div class="navbar-header navbar-form navbar-right">
-                    <button type="button" class="btn btn-danger js_pick_quit pull-right">Quit</button>
+                    <!--<button type="button" class="btn btn-danger js_pick_quit pull-right">Quit</button>-->
                 </div>
 
             </div>
@@ -505,6 +506,7 @@
             <div class="container">
                 <div class="navbar-left">
                     <button type="button" class="btn btn-primary navbar-btn js_pick_menu">Menu</button>
+                    <button type="button" class="btn btn-primary navbar-btn js_pick_incoming_product" style="background-color: orange;">Incoming Product</button>
                     <button type="button" class="btn btn-primary navbar-btn js_pick_incomings">Incomings</button>
                     <button type="button" class="btn btn-primary navbar-btn js_pick_outgoings">Outgoings</button>
                     <button type="button" class="btn btn-primary navbar-btn js_pick_products">All Products</button>
@@ -559,7 +561,7 @@
                     </tr>
                 </table>
             </div>
-            <div style="float: right; width: 20%;">
+            <div style="float: right; width: 30%;">
                 <t t-if="product.image_medium">
                     <t t-set="image_medium" t-value="'&lt;img  src=&quot;data:image/gif;base64,'+ product.image_medium +'&quot;  /&gt;'"/>
                     <t t-raw="image_medium"/>
@@ -661,13 +663,311 @@
     </div>
 </t>
 
+<t t-name="IncomingProductWidget">
+    <div class="container">
+        <button id="currentprogressbar" class="progressbar">
+            <a href="#">PRODUCT SCAN</a>
+        </button>
+        <button class="progressbar">
+            <a href="#">INPUT SELECTION</a>
+        </button>
+        <button class="progressbar">
+            <a href="#">OUTPUT SELECTION</a>
+        </button>   
+    
+        <t t-if="product != null">
+            <h3>Product</h3>
+            <div>
+                <div style="float: left; width: 70%;">
+                     <table class='table table-condensed table-striped'>
+                        <tr>
+                            <th>Brand</th>
+                            <td><t t-esc="product.brand" /></td>
+                        </tr>
+                        <tr>
+                            <th>Name</th>
+                            <td><t t-esc="product.name" /></td>
+                        </tr>
+                        <tr>
+                            <th>EAN13 Barcode</th>
+                            <td><t t-esc="product.ean13" /></td>
+                        </tr>
+                        <tr>
+                            <th>Internal Reference</th>
+                            <td><t t-esc="product.default_code" /></td>
+                        </tr>
+                        <tr>
+                            <th>Quantity On Hand</th>
+                            <td><t t-if="product.qty_available"><t t-esc="product.qty_available"/></t><t t-if="! product.qty_available">0</t></td>
+                        </tr>
+                        <tr>
+                            <th>Internal Category</th>
+                            <td><t t-esc="product.category" /></td>
+                        </tr>
+                    </table>
+                </div>
+                <div style="float: right; width: 20%;">
+                    <t t-if="product.image_medium">
+                        <t t-set="image_medium" t-value="'&lt;img  src=&quot;data:image/gif;base64,'+ product.image_medium +'&quot;  /&gt;'"/>
+                        <t t-raw="image_medium"/>
+                    </t>  
+                </div>
+            </div>
+            <div style="clear: both;  padding-top: 10px;">
+                <!--<div style="float: left;">
+                    <div class="input-group" style="width: 200px; margin-right: 50px;">
+                        <span class="input-group-addon js_minus input-sm"><a href="#"><i class="fa fa-minus"></i></a></span>
+                        <form class="js_submit_value">
+                            <input type="text" class="form-control text-center js_qty" t-att-value="1"></input>
+                        </form>
+                        <span class="input-group-addon js_plus input-sm"><a href="#"><i class="fa fa-plus"></i></a></span>
+                    </div>
+                </div>
+                <div style="float: left">
+                    <button type="button" class="btn btn-danger js_confirm_product pull-right">Continue</button>
+                </div>-->
+                <h3>Product Quantity</h3>
+                <div class="input-group" style="width: 200px; margin-right: 50px;">
+                    <span class="input-group-addon js_minus input-sm"><a href="#"><i class="fa fa-minus"></i></a></span>
+                    <form class="js_submit_value">
+                        <input type="text" class="form-control text-center js_qty" t-att-value="1"></input>
+                    </form>
+                    <span class="input-group-addon js_plus input-sm"><a href="#"><i class="fa fa-plus"></i></a></span>
+                </div>
+                <hr/>
+                <button type="button" class="btn btn-danger js_confirm_product pull-right">Continue</button>
+            </div>
+        </t>
+        <t t-if="product == null">
+            <h1>Scan a product</h1>
+            <img src="/stock/static/src/img/scan.png" alt="Barcode"/>
+        </t>
+    </div>
+</t>
+
+
+<t t-name="IncomingProductSelectIncomingsWidget">
+    <div class="container">
+        <button class="progressbar">
+            <a href="#">PRODUCT SCAN</a>
+            <i></i>
+        </button>
+        <button class="progressbar" id="currentprogressbar">
+            <a href="#">INPUT SELECTION</a>
+        </button>
+        <button class="progressbar">
+            <a href="#">OUTPUT SELECTION</a>
+        </button>   
+        
+        <h1>Product quantity to share: <span id="product_qty"></span></h1>
+        <h3>Product: <t t-esc="product.brand" /> - <t t-esc="product.name" /></h3>
+
+        <t t-if="incomings.length > 0">
+            <table class='table table-striped'>
+                <thead>
+                    <tr>	 	
+                        <th class="text-left">Partner</th>
+                        <th class="text-left">Picking Name</th>
+                        <th class="text-left">Source Document</th>
+                        <th class="text-left">Creation Date</th>                            
+                        <th class="text-left">Scheduled Date</th>
+                        <th class="text-left">State</th>
+                        <th class="text-left">Ordered Quantity</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody class='js_products_table_todo'>
+                    <t t-foreach="incomings" t-as="picking">
+                        <tr class="oe_product">
+                            <td t-att-class="'brctbl-col1 text-left'">
+                                <t t-esc="picking.partner" />
+                            </td>
+                            <td t-att-class="'brctbl-col1 text-left'">
+                                <t t-esc="picking.name" />
+                            </td>
+                            <td t-att-class="'brctbl-col1 text-left'">
+                                <t t-esc="picking.origin" />
+                            </td>
+                            <td t-att-class="'brctbl-col2 text-left'">
+                                <t t-esc="picking.date" />
+                            </td>
+                            <td t-att-class="'brctbl-col3 text-left'">
+                                <t t-esc="picking.min_date" />
+                            </td>
+                            <td t-att-class="'brctbl-col4 text-left'">
+                                <t t-esc="picking.state" />
+                            </td>
+                            <td t-att-class="'brctbl-col5 text-left'">
+                                <t t-esc="picking.product_qty" />
+                            </td>
+                            <td t-att-class="'brctbl-col6 text-left'">
+                                <div class="input-group" style="width: 200px;">
+                                    <span class="input-group-addon js_minus input-sm"><a href="#"><i class="fa fa-minus"></i></a></span>
+                                    <form class="js_submit_value">
+                                        <input type="text" class="form-control text-center js_qty" t-att-picking-id="picking.id" t-att-value="0"></input>
+                                    </form>
+                                    <span class="input-group-addon js_plus input-sm"><a href="#"><i class="fa fa-plus"></i></a></span>
+                                </div>
+                            </td>
+                        </tr>
+                    </t>
+                </tbody>
+            </table>
+            <hr/>
+            <button type="button" class="btn btn-danger js_confirm_incomings pull-right">Transfer IN and Continue</button>
+        </t>    
+        <t t-if="incomings.length === 0">
+            <h1 style="color: red; font-weight: bold;">No IN found! Please check the incoming picking lists</h1>
+        </t>
+    </div>
+</t>
+
+
+<t t-name="IncomingProductSelectOutgoingsWidget">
+    <div class="container">
+        <button class="progressbar">
+            <a href="#">PRODUCT SCAN</a>
+            <i></i>
+        </button>
+        <button class="progressbar" >
+            <a href="#">INPUT SELECTION</a>
+            <i></i>
+        </button>
+        <button class="progressbar" id="currentprogressbar">
+            <a href="#">OUTPUT SELECTION</a>
+        </button>   
+        
+        <h1>Product quantity to share: <span id="product_qty"></span></h1>
+        <h3>Product: <t t-esc="product.brand" /> - <t t-esc="product.name" /></h3>
+        <hr/>
+        <h2 style="color: blue; font-weight: bold;">Product quantity to reserve for a customer (reserve and print IN)</h2>
+        <t t-if="outgoings.length > 0">
+            <table class='table table-striped customer-moves'>
+                <thead>
+                    <tr>	 	
+                        <th class="text-left">Partner</th>
+                        <th class="text-left">Picking Name</th>
+                        <th class="text-left">Source Document</th>
+                        <th class="text-left">Creation Date</th>                            
+                        <th class="text-left">Scheduled Date</th>
+                        <th class="text-left">State</th>
+                        <th class="text-left">Ordered Quantity</th>
+                        <th class="text-left">Reserved Quantity</th>
+                        <th class="text-left">Quantity Difference</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody class='js_products_table_todo'>
+                    <t t-foreach="outgoings" t-as="picking">
+                        <tr class="oe_product">
+                            <td t-att-class="'brctbl-col1 text-left'">
+                                <t t-esc="picking.partner" />
+                            </td>
+                            <td t-att-class="'brctbl-col1 text-left'">
+                                <t t-esc="picking.name" />
+                            </td>
+                            <td t-att-class="'brctbl-col1 text-left'">
+                                <t t-esc="picking.origin" />
+                            </td>
+                            <td t-att-class="'brctbl-col2 text-left'">
+                                <t t-esc="picking.date" />
+                            </td>
+                            <td t-att-class="'brctbl-col3 text-left'">
+                                <t t-esc="picking.min_date" />
+                            </td>
+                            <td t-att-class="'brctbl-col4 text-left'">
+                                <t t-esc="picking.state" />
+                            </td>
+                            <td t-att-class="'brctbl-col5 text-left'">
+                                <t t-esc="picking.product_qty" />
+                            </td>
+                            <td t-att-class="'brctbl-col5 text-left'">
+                                <t t-esc="picking.reserved_availability" />
+                            </td>
+                            <td t-att-class="'brctbl-col5 text-left'">
+                                <t t-esc="picking.product_qty_diff" />
+                            </td>
+                            <td t-att-class="'brctbl-col6 text-left'">
+                                <div class="input-group" style="width: 200px;">
+                                    <span class="input-group-addon js_minus input-sm"><a href="#"><i class="fa fa-minus"></i></a></span>
+                                    <form class="js_submit_value">
+                                        <input type="text" class="form-control text-center js_qty" t-att-picking-id="picking.id" t-att-value="0"></input>
+                                    </form>
+                                    <span class="input-group-addon js_plus input-sm"><a href="#"><i class="fa fa-plus"></i></a></span>
+                                </div>
+                            </td>
+                        </tr>
+                    </t>
+                </tbody>
+            </table>
+        </t>    
+        <t t-if="outgoings.length === 0">
+            <h2 style="color: red; font-weight: bold;">No OUT found!</h2>
+        </t>
+        <hr/>
+        <h2 style="color: blue; font-weight: bold;">Product quantity to not reserve (only print OUT labels)</h2>
+        
+        
+        
+        <table class='table table-striped stock-moves' style="width: initial;">
+                <tr>	 	
+                    <th class="text-left">Transferred OUT Quantity</th>
+                    <th></th>
+                </tr>
+                <tr>
+                    <td t-att-class="'brctbl-col1 text-left'">
+                        <t t-esc="incomings_product_qty_sum" />
+                    </td>
+                    <td t-att-class="'brctbl-col2 text-left'">
+                        <div class="input-group" style="width: 200px; margin-right: 50px;">
+                            <span class="input-group-addon js_minus input-sm"><a href="#"><i class="fa fa-minus"></i></a></span>
+                            <form class="js_submit_value">
+                                <input type="text" class="form-control text-center js_qty" t-att-value="0"></input>
+                            </form>
+                            <span class="input-group-addon js_plus input-sm"><a href="#"><i class="fa fa-plus"></i></a></span>
+                        </div>
+                    </td>
+                </tr>
+        </table>
+        
+        <hr/>
+        <button type="button" class="btn btn-danger js_confirm_print pull-right">Reserve and/or Print Labels</button>
+        
+    </div>
+</t>
+
+
+<t t-name="IncomingProductFinishWidget">
+    <div class="container">
+        <button class="progressbar">
+            <a href="#">PRODUCT SCAN</a>
+            <i></i>
+        </button>
+        <button class="progressbar" >
+            <a href="#">INPUT SELECTION</a>
+            <i></i>
+        </button>
+        <button class="progressbar">
+            <a href="#">OUTPUT SELECTION</a>
+            <i></i>
+        </button>   
+        
+        <h1>The labels are printing ...</h1>
+        <h3>Product: <t t-esc="product.brand" /> - <t t-esc="product.name" /></h3>
+        
+        <button type="button" class="btn btn-danger js_redirect_incoming_product pull-right">New Incoming Product</button>
+    </div>
+</t>
+
+
 <t t-name="PageWidget">
     <div>
          <div class="navbar navbar-inverse navbar-static-top" role="navigation">
             <div class="container">
-                <div class="navbar-header navbar-form navbar-left">
+                <div class="navbar-header navbar-form navbar-left" style="width: 1170px;">
                     <input type='text' id="product_search_box" class="oe_searchbox form-control" placeholder='Search'/>
                     <button type="button" class="btn btn-primary navbar-btn js_clear_search">Clear Search</button>
+                    <button type="button" class="btn btn-primary navbar-btn js_pick_incoming_product" style="background-color: orange;">Incoming Product</button>
                     <button type="button" class="btn btn-primary navbar-btn js_pick_menu">Menu</button>
                     <button type="button" class="btn btn-primary navbar-btn js_pick_incomings">Incomings</button>
                     <button type="button" class="btn btn-primary navbar-btn js_pick_outgoings">Outgoings</button>
@@ -677,7 +977,7 @@
                     <button type="button" class="btn btn-primary navbar-btn js_pick_suppliers">Suppliers</button>
                 </div>
                 <div class="navbar-header navbar-form navbar-right">
-                    <button type="button" class="btn btn-danger js_pick_quit pull-right">Quit</button>
+                <!--<button type="button" class="btn btn-danger js_pick_quit pull-right">Quit</button>-->
                 </div>
             </div>
         </div>      

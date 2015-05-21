@@ -91,13 +91,21 @@ function openerp_picking_widgets(instance){
                         clear_breadcrumbs: true,
                     });
                 }
+                else if (states.action === "stock.incomingProduct"){
+                    self.do_action({
+                        type:   'ir.actions.client',
+                        tag:    'stock.incomingProduct',
+                        target: 'current',
+                    },{
+                        clear_breadcrumbs: true,
+                    });
+                }
             });
         },
-
         start: function(){
             instance.webclient.set_content_full_screen(true);
             var self = this;
-            this.$('.js_pick_quit').click(function(){ self.quit(); });
+            //this.$('.js_pick_quit').click(function(){ self.quit(); });
             this.$('.js_pick_menu').click(function(){ self.menu(); });
             this.$('.js_pick_products').click(function(){ self.goto_products(); });
             this.$('.js_pick_moves_products').click(function(){ self.goto_moves_products(); });
@@ -105,8 +113,9 @@ function openerp_picking_widgets(instance){
             this.$('.js_pick_outgoings').click(function(){ self.goto_outgoings(); });
             this.$('.js_pick_customers').click(function(){ self.goto_customers(); });
             this.$('.js_pick_suppliers').click(function(){ self.goto_suppliers(); });
+            this.$('.js_pick_incoming_product').click(function(){ self.goto_incoming_product(); });
         },
-
+        
         menu: function(){
             $.bbq.pushState('#action=stock.menu');
             $(window).trigger('hashchange');
@@ -135,6 +144,11 @@ function openerp_picking_widgets(instance){
             $.bbq.pushState('#action=stock.partnerList&type=supplier');
             $(window).trigger('hashchange');
         },
+        goto_incoming_product: function(){
+            $.bbq.pushState('#action=stock.incomingProduct');
+            $(window).trigger('hashchange');
+        },
+        
         quit: function(){
             this.destroy();
             return new instance.web.Model("ir.model.data").get_func("search_read")([['name', '=', 'action_picking_type_form']], ['res_id']).pipe(function(res) {
@@ -146,6 +160,7 @@ function openerp_picking_widgets(instance){
             instance.webclient.set_content_full_screen(false);
         },
     });
+
 
     module.PickingEditorWidget = instance.web.Widget.extend({
         //modified
@@ -646,6 +661,15 @@ function openerp_picking_widgets(instance){
                         clear_breadcrumbs: true,
                     });
                 }
+                else if (states.action === "stock.incomingProduct"){
+                    self.do_action({
+                        type:   'ir.actions.client',
+                        tag:    'stock.incomingProduct',
+                        target: 'current',
+                    },{
+                        clear_breadcrumbs: true,
+                    });
+                }
             });
             this.picking_types = [];
             this.loaded = this.load();
@@ -683,7 +707,7 @@ function openerp_picking_widgets(instance){
         renderElement: function(){
             this._super();
             var self = this;
-            this.$('.js_pick_quit').click(function(){ self.quit(); });
+            //this.$('.js_pick_quit').click(function(){ self.quit(); });
             this.$('.js_pick_scan').click(function(){ self.scan_picking($(this).data('id')); });
             this.$('.js_pick_last').click(function(){ self.goto_last_picking_of_type($(this).data('id')); });
             self.$('.js_pick_menu').click(function(){ self.menu(); });
@@ -693,6 +717,7 @@ function openerp_picking_widgets(instance){
             self.$('.js_pick_outgoings').click(function(){ self.goto_outgoings(); });
             this.$('.js_pick_customers').click(function(){ self.goto_customers(); });
             this.$('.js_pick_suppliers').click(function(){ self.goto_suppliers(); });
+            this.$('.js_pick_incoming_product').click(function(){ self.goto_incoming_product(); });
             this.$('.oe_searchbox').keyup(function(event){
                 self.on_searchbox($(this).val());
             });
@@ -744,6 +769,10 @@ function openerp_picking_widgets(instance){
         },
         goto_suppliers: function(){
             $.bbq.pushState('#action=stock.partnerList&type=supplier');
+            $(window).trigger('hashchange');
+        },
+        goto_incoming_product: function(){
+            $.bbq.pushState('#action=stock.incomingProduct');
             $(window).trigger('hashchange');
         },
         search_picking: function(barcode){
@@ -867,6 +896,15 @@ function openerp_picking_widgets(instance){
                     self.do_action({
                         type:   'ir.actions.client',
                         tag:    'stock.partnerList',
+                        target: 'current',
+                    },{
+                        clear_breadcrumbs: true,
+                    });
+                }
+                else if (states.action === "stock.incomingProduct"){
+                    self.do_action({
+                        type:   'ir.actions.client',
+                        tag:    'stock.incomingProduct',
                         target: 'current',
                     },{
                         clear_breadcrumbs: true,
@@ -1026,7 +1064,7 @@ function openerp_picking_widgets(instance){
                 self.scan(ean);
             });
 
-            this.$('.js_pick_quit').click(function(){ self.quit(); });
+            //this.$('.js_pick_quit').click(function(){ self.quit(); });
             this.$('.js_pick_prev').click(function(){ self.picking_prev(); });
             this.$('.js_pick_next').click(function(){ self.picking_next(); });
             this.$('.js_pick_menu').click(function(){ self.menu(); });
@@ -1036,6 +1074,7 @@ function openerp_picking_widgets(instance){
             this.$('.js_pick_outgoings').click(function(){ self.goto_outgoings(); });
             this.$('.js_pick_customers').click(function(){ self.goto_customers(); });
             this.$('.js_pick_suppliers').click(function(){ self.goto_suppliers(); });
+            this.$('.js_pick_incoming_product').click(function(){ self.goto_incoming_product(); });
             this.$('.js_reload_op').click(function(){ self.reload_pack_operation();});
 
             $.when(this.loaded).done(function(){
@@ -1184,6 +1223,10 @@ function openerp_picking_widgets(instance){
         },
         goto_suppliers: function(){
             $.bbq.pushState('#action=stock.partnerList&type=supplier');
+            $(window).trigger('hashchange');
+        },
+        goto_incoming_product: function(){
+            $.bbq.pushState('#action=stock.incomingProduct');
             $(window).trigger('hashchange');
         },
         scan: function(ean){ //scans a barcode, sends it to the server, then reload the ui
@@ -2101,6 +2144,429 @@ function openerp_picking_widgets(instance){
         },
     });
     openerp.web.client_actions.add('stock.partnerMoves', 'instance.stock.PartnerMovesWidget');
+
+    
+    /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+    /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+    /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+    /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+    /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+    module.IncomingProductWidget = module.PageWidget.extend({
+        init: function(parent,params){
+            this._super(parent,params);
+            this.product = null;
+            this.product_tmp = null;
+            this.product_template = null;
+            this.product_qty = 0;
+            this.picking_ids = {};
+            this.pickings = [];
+            this.picking_type_ids = [];
+            this.stock_picking_type = "";
+            this.incomings_transferred = [];
+            this.incomings_product_qty_sum = 0;
+            this.barcode_scanner = new module.BarcodeScanner();
+            toastr.options = {
+              "closeButton": true,
+              "debug": false,
+              "newestOnTop": false,
+              "progressBar": true,
+              "positionClass": "toast-top-right",
+              "preventDuplicates": true,
+              "onclick": null,
+              "showDuration": "1000",
+              "hideDuration": "1000",
+              "timeOut": "2000",
+              "extendedTimeOut": "1000",
+              "showEasing": "swing",
+              "hideEasing": "linear",
+              "showMethod": "fadeIn",
+              "hideMethod": "fadeOut"
+            }
+        },
+        loadProduct: function(ean){
+            var self = this;
+            if(ean){
+                return new instance.web.Model("product.product")
+                    .query(['id','name','ean13','default_code','product_tmpl_id'])
+                    .filter([['ean13', '=', ean]])
+                    .first()
+                .then(function(prod) {
+                    if(!prod){
+                        self.product_tmp = null;
+                        return null;
+                    }
+                    self.product_tmp = prod;
+                    self.product_tmp.ean13 = self.product_tmp.ean13 ? self.product_tmp.ean13 : "";
+                    return new instance.web.Model("product.template")
+                        .query(['id','product_brand_id','qty_available','image_medium','categ_id'])
+                        .filter([['id', '=', self.product_tmp.product_tmpl_id[0]]])
+                        .first()
+                }).then(function(product_tmpl) {
+                    if(!product_tmpl){return;}
+                    self.product_template = product_tmpl;
+                    self.product_tmp.brand = self.product_template.product_brand_id ? self.product_template.product_brand_id[1] : "";
+                    self.product_tmp.qty_available = self.product_template.qty_available ? self.product_template.qty_available : "";
+                    self.product_tmp.image_medium = self.product_template.image_medium;
+                    self.product_tmp.category = self.product_template.categ_id[1];
+                });
+            }
+        },
+        loadPickings: function(){
+            var self = this;
+            return new instance.web.Model("stock.move")
+                .query(['id','picking_id','product_qty','reserved_availability'])
+                .filter([['product_id', '=', self.product.id],['state','!=','done']])
+                .all()
+                .then(function(pck_ids) {
+                    self.picking_ids = {};
+                    for(var i = 0; i < pck_ids.length; i++){
+                        self.picking_ids[pck_ids[i].picking_id[0]]={'product_qty':pck_ids[i].product_qty, 'stock_move_id':pck_ids[i].id, 'reserved_availability':pck_ids[i].reserved_availability};
+                    }
+                    return new instance.web.Model("stock.picking.type")
+                    .query(['id'])
+                    .filter([['code', '=', self.stock_picking_type],['active', '=', true]])
+                    .all()
+                }).then(function(picking_types) {
+                    self.picking_type_ids = [];
+                    for(var i = 0; i < picking_types.length; i++){
+                        self.picking_type_ids.push(picking_types[i].id);
+                    }
+                    return new instance.web.Model("stock.picking")
+                    .query(['id','name','date','partner_id','state','origin','min_date'])
+                    .filter([['picking_type_id', 'in', self.picking_type_ids],['id', 'in', Object.keys(self.picking_ids)],['state', 'in', ['confirmed','assigned','partially_available']]])
+                    .all()
+                }).then(function(picks) {
+                    self.pickings = [];
+                    picks.sort(function(a, b) {if(a.partner_id[1] == b.partner_id[1]){return a.date.localeCompare(b.date);} return a.partner_id[1].localeCompare(b.partner_id[1]);})
+
+                    var picking_states = {  draft:"Draft", 
+                                            cancel:"Cancelled", 
+                                            waiting:"Waiting Another Operation",
+                                            partially_available: "Partially Available",
+                                            confirmed:"Waiting Availability", 
+                                            assigned:"Ready to Transfer", 
+                                            done:"Transferred"
+                                         }
+                    
+                    for(var i = 0; i < picks.length; i++){
+                        var picking = picks[i];
+
+                        if(picking_states.hasOwnProperty(picking.state)){
+                            picking.state = picking_states[picking.state];
+                        }
+                        
+                        picking.product_qty = self.picking_ids.hasOwnProperty(picking.id) ? self.picking_ids[picking.id].product_qty : 0;
+                        picking.stock_move_id = self.picking_ids.hasOwnProperty(picking.id) ? self.picking_ids[picking.id].stock_move_id : 0;
+                        picking.reserved_availability = self.picking_ids.hasOwnProperty(picking.id) ? self.picking_ids[picking.id].reserved_availability : 0;
+                        picking.product_qty_diff = picking.product_qty-picking.reserved_availability;
+
+                        
+                        picking.partner = picking.partner_id ? picking.partner_id[1] : '';
+                        if(picking.product_qty_diff>0){
+                            self.pickings.push(picking)
+                        }
+                    }
+                    return self.pickings;
+                });
+        },
+        start: function(){
+            this._super();
+            var self = this;
+            this.barcode_scanner.disconnect();
+            this.barcode_scanner.connect(function(barcode){
+                self.scan(barcode);
+            });
+            self.$('.content').html(QWeb.render('IncomingProductWidget',{product:self.product}));
+            self.$('#product_search_box').hide();
+            self.$('.js_clear_search').hide();
+            self.render_product_selection();
+        },
+        render_product_selection: function(){
+            var self = this;
+            self.$('.content').html(QWeb.render('IncomingProductWidget',{product:self.product}));
+            self.$('.js_minus').unbind();
+            self.$('.js_minus').click(function(){
+                if (parseInt(self.$('.js_qty').val()) > 0 ){
+                    self.$('.js_qty').val(parseInt(self.$('.js_qty').val())-1);
+                    toastr.success('-1');
+                }
+            });
+            self.$('.js_plus').unbind();
+            self.$('.js_plus').click(function(){
+                self.$('.js_qty').val(parseInt(self.$('.js_qty').val())+1);
+                toastr.success('+1');
+            });
+
+            self.$(".js_qty").change(function() {
+                self.product_qty = parseInt($(this).val());
+            });
+            
+            self.$('.js_confirm_product').unbind();
+            self.$('.js_confirm_product').click(function(){
+                self.render_incoming_selection();
+            });
+        },
+        render_incoming_selection: function(){
+            var self = this;
+            if(self.product != null && parseInt(self.$('.js_qty').val())>0)
+            {
+                self.stock_picking_type = 'incoming';
+                self.loadPickings().then(function(){
+                    self.barcode_scanner.disconnect();
+                    self.$('.content').html(QWeb.render('IncomingProductSelectIncomingsWidget',{product: self.product, incomings:self.pickings}));
+                    self.$('.js_minus').unbind();
+                    self.$('.js_plus').unbind();
+                    self.$('.js_confirm_product').unbind();
+                    self.$('.js_qty').unbind();
+                    
+                    function recompute_product_quantity() {
+                        var qty_sum = 0;
+                        self.$(".js_qty").each(function() {
+                            qty_sum += parseInt($(this).val());
+                        });
+                        var diff = self.product_qty - qty_sum;
+                        self.$('#product_qty').html(self.product_qty-qty_sum);
+                        if (diff==0){
+                            self.$('#product_qty').attr('class','quantity_ok');
+                        }
+                        else{
+                            self.$('#product_qty').attr('class','quantity_nok');
+                        }
+                        return diff;
+                    }
+                    
+                    self.$(".js_qty").each(function() {
+                        var max_qty_move = parseInt($(this).parent().parent().parent().prev().html());
+                        var max_qty_share = recompute_product_quantity();
+                        var diff = max_qty_share-max_qty_move;
+                        if(diff>=0){
+                            $(this).val(max_qty_move);
+                        }
+                        else
+                        {
+                            $(this).val(max_qty_share);
+                            return false;
+                        }
+                    });
+                    
+                    recompute_product_quantity();
+                    
+                    self.$('.js_minus').click(function(){
+                        if (parseInt($(this).next().children(".js_qty").val()) > 0 ){
+                            $(this).next().children(".js_qty").val(parseInt($(this).next().children(".js_qty").val())-1);
+                            toastr.success('-1');
+                            recompute_product_quantity();
+                        }
+                    });
+                    self.$('.js_plus').click(function(){
+                        max_qty = parseInt($(this).parent().parent().prev().html());
+                        input_qty = parseInt($(this).prev().children(".js_qty").val());
+                        if (input_qty < max_qty){
+                            $(this).prev().children(".js_qty").val(parseInt($(this).prev().children(".js_qty").val())+1);
+                            toastr.success('+1');
+                            recompute_product_quantity();
+                        }
+                    });
+
+                    self.$('.js_confirm_incomings').click(function(){
+                        var qty = recompute_product_quantity();
+                        if(qty==0)
+                        {
+                            
+                            //if (confirm('Do you want to continue?')) {
+                                var picking_model = new instance.web.Model('stock.picking');
+                                var wait_return = function(){};
+                                self.incomings_transferred = [];
+                                self.incomings_product_qty_sum = 0;
+                                self.$(".js_qty").each(function() {
+                                    var product_qty = parseInt($(this).val());
+                                    if(product_qty > 0){
+                                        var picking_id = parseInt($(this).attr('picking-id'));
+                                        var stock_move_id = self.picking_ids.hasOwnProperty(picking_id) ? self.picking_ids[picking_id].stock_move_id : 0;
+                                        var incoming_transferred = [picking_id, stock_move_id,product_qty];
+                                        self.incomings_product_qty_sum += product_qty;
+                                        self.incomings_transferred.push(incoming_transferred); 
+                                        wait_return = picking_model.call('transfer_stock_move_of_a_picking', incoming_transferred );
+                                    }
+                                });
+                                
+                                wait_return.then(function(){
+                                    self.render_outgoing_selection();
+                                });
+
+                            /*} else 
+                            {
+                                // Do nothing!
+                            }*/
+                        }
+                        else
+                        {
+                            toastr.error('The quantity must be equal 0');
+                        }
+                    });
+                });
+            }             
+            else
+            {
+                toastr.warning('Product quantity must be greater than 0');
+            }
+        },
+        render_outgoing_selection:function(){
+            var self = this;
+            self.stock_picking_type = 'outgoing';
+            self.loadPickings().then(function(){
+                self.$('.content').html(QWeb.render('IncomingProductSelectOutgoingsWidget',{product: self.product, outgoings: self.pickings, incomings_product_qty_sum: self.incomings_product_qty_sum,}));
+                self.$('.js_minus').unbind();
+                self.$('.js_plus').unbind();
+                self.$('.js_confirm_incomings').unbind();
+                self.$('.js_qty').unbind();
+                
+                function recompute_product_quantity() {
+                    var qty_sum = 0;
+                    self.$(".js_qty").each(function() {
+                        qty_sum += parseInt($(this).val());
+                    });
+                    var diff = self.product_qty - qty_sum;
+                    self.$('#product_qty').html(self.product_qty-qty_sum);
+                    if (diff==0){
+                        self.$('#product_qty').attr('class','quantity_ok');
+                    }
+                    else{
+                        self.$('#product_qty').attr('class','quantity_nok');
+                    }
+                    return diff;
+                }
+                
+                self.$(".js_qty").each(function() {
+                    var max_qty_move = parseInt($(this).parent().parent().parent().prev().html());
+                    var max_qty_share = recompute_product_quantity();
+                    var diff = max_qty_share-max_qty_move;
+                    if(diff>=0){
+                        $(this).val(max_qty_move);
+                    }
+                    else
+                    {
+                        $(this).val(max_qty_share);
+                        return false;
+                    }
+                });
+                
+                recompute_product_quantity();
+                
+                self.$('.js_minus').click(function(){
+                    if (parseInt($(this).next().children(".js_qty").val()) > 0 ){
+                        $(this).next().children(".js_qty").val(parseInt($(this).next().children(".js_qty").val())-1);
+                        toastr.success('-1');
+                        recompute_product_quantity();
+                    }
+                });
+                
+                self.$('.js_plus').click(function(){
+                    max_qty = parseInt($(this).parent().parent().prev().html());
+                    input_qty = parseInt($(this).prev().children(".js_qty").val());
+                    if (input_qty < max_qty){
+                        $(this).prev().children(".js_qty").val(parseInt($(this).prev().children(".js_qty").val())+1);
+                        toastr.success('+1');
+                        recompute_product_quantity();
+                    }
+                });
+
+                self.$('.js_confirm_print').click(function(){
+                    var qty = recompute_product_quantity();
+                    if(qty==0)
+                    {
+                        //if (confirm('Do you want to continue?')) {
+                            var picking_model = new instance.web.Model('stock.picking');
+                            self.$('.customer-moves').find(".js_qty").each(function() {
+                                var product_qty = parseInt($(this).val());
+                                if(product_qty > 0){
+                                    var picking_id = parseInt($(this).attr('picking-id'));
+                                    var stock_move_id = self.picking_ids.hasOwnProperty(picking_id) ? self.picking_ids[picking_id].stock_move_id : 0;
+                                    alert(picking_id);
+                                    picking_model.call('action_assign', [picking_id])
+                                        .then(function(){
+                                            return new instance.web.Model('stock.move.transient').call('print_labels_from_stock_move_with_custom_qty',[stock_move_id,product_qty])
+                                        }).then(function(action){
+                                           return self.do_action(action);
+                                        });
+                                }
+                            });
+                            
+                            self.$('.stock-moves').find(".js_qty").each(function() {
+                                var product_qty = parseInt($(this).val());
+                                if(product_qty > 0){
+                                    for(var i = 0; i < self.incomings_transferred.length; i++){
+                                        var incoming = self.incomings_transferred[i];
+                                        var stock_move_id = incoming[1];
+                                        new instance.web.Model('stock.move.transient').call('print_labels_from_stock_move_with_custom_qty',[stock_move_id,product_qty])
+                                        .then(function(action){
+                                           return self.do_action(action);
+                                        });
+                                    }
+                                }
+                                self.render_finish();  
+                           });    
+
+                        /*} 
+                        else 
+                        {
+                            // Do nothing!
+                        }*/
+                    }
+                    else
+                    {
+                        toastr.error('The quantity must be equal 0');
+                    }
+                });
+            });
+        },
+        render_finish:function(){
+            var self = this;
+            self.$('.content').html(QWeb.render('IncomingProductFinishWidget',{product: self.product,}));
+            self.$('.js_minus').unbind();
+            self.$('.js_plus').unbind();
+            self.$('.js_confirm_print').unbind();
+            self.$('.js_qty').unbind();
+            self.$('.js_redirect_incoming_product').click(function(){
+                self.$('.js_pick_incoming_product').click();
+            });
+        },
+        scan: function(ean){ //scans a barcode, sends it to the server, then reload the ui
+            //for ean13 barcodes with 12 characters
+            ean = String(ean)
+            if(ean.length<13){
+                for(var i = 0 ; i<13-ean.length ; ++i){
+                    ean = "0"+ean;
+                }
+            }
+            var self = this;
+            
+            return this.loadProduct(ean).then(function(){
+                    if(self.product == null && self.product_tmp!=null){
+                        self.product=self.product_tmp;
+                        self.render_product_selection();
+                    }
+                    else if(self.product_tmp == null){
+                        toastr.error('Product not found');
+                    }
+                    else if(self.product_tmp && self.product && self.product_tmp.id==self.product.id){
+                        self.$('.js_qty').val(parseInt(self.$('.js_qty').val())+1);
+                        toastr.success('+1');
+                    }
+                    else if(self.product_tmp && self.product && self.product_tmp.id!=self.product.id){
+                        if (confirm('Do you want to change the current product?')) {
+                            self.product = self.product_tmp;
+                            self.render_product_selection();
+                        } else {
+                            // Do nothing!
+                        }
+                    }
+                    self.product_qty = parseInt(self.$('.js_qty').val());
+            });
+        },
+    });
+    openerp.web.client_actions.add('stock.incomingProduct', 'instance.stock.IncomingProductWidget');
 
     
     /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
