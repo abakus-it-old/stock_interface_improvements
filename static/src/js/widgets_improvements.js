@@ -2487,7 +2487,6 @@ function openerp_picking_widgets(instance){
                                 if(product_qty > 0){
                                     var picking_id = parseInt($(this).attr('picking-id'));
                                     var stock_move_id = self.picking_ids.hasOwnProperty(picking_id) ? self.picking_ids[picking_id].stock_move_id : 0;
-                                    alert(picking_id);
                                     picking_model.call('action_assign', [picking_id])
                                         .then(function(){
                                             return new instance.web.Model('stock.move.transient').call('print_labels_from_stock_move_with_custom_qty',[stock_move_id,product_qty])
