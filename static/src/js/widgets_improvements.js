@@ -2288,13 +2288,17 @@ function openerp_picking_widgets(instance){
             self.$('.js_minus').unbind();
             self.$('.js_minus').click(function(){
                 if (parseInt(self.$('.js_qty').val()) > 0 ){
-                    self.$('.js_qty').val(parseInt(self.$('.js_qty').val())-1);
+                    var val = parseInt(self.$('.js_qty').val())-1;
+                    self.product_qty = val;
+                    self.$('.js_qty').val(val);
                     toastr.success('-1');
                 }
             });
             self.$('.js_plus').unbind();
             self.$('.js_plus').click(function(){
-                self.$('.js_qty').val(parseInt(self.$('.js_qty').val())+1);
+                var val = parseInt(self.$('.js_qty').val())+1;
+                self.product_qty = val;
+                self.$('.js_qty').val(val);
                 toastr.success('+1');
             });
 
@@ -2551,7 +2555,9 @@ function openerp_picking_widgets(instance){
                         toastr.error('Product not found');
                     }
                     else if(self.product_tmp && self.product && self.product_tmp.id==self.product.id){
-                        self.$('.js_qty').val(parseInt(self.$('.js_qty').val())+1);
+                        var val = parseInt(self.$('.js_qty').val())+1;
+                        self.product_qty = val;
+                        self.$('.js_qty').val(val);
                         toastr.success('+1');
                     }
                     else if(self.product_tmp && self.product && self.product_tmp.id!=self.product.id){
@@ -2562,7 +2568,7 @@ function openerp_picking_widgets(instance){
                             // Do nothing!
                         }
                     }
-                    self.product_qty = parseInt(self.$('.js_qty').val());
+                    
             });
         },
     });
