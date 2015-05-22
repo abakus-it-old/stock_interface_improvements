@@ -257,8 +257,8 @@
             <div class="container">
                 <div class="navbar-header navbar-form navbar-left" style="width: 1170px;">
                     <input type='text' class="oe_searchbox form-control" placeholder='Search'/>
-                    <button type="button" class="btn btn-primary navbar-btn js_pick_menu">Menu</button>
                     <button type="button" class="btn btn-primary navbar-btn js_pick_incoming_product" style="background-color: orange;">Incoming Product</button>
+                    <button type="button" class="btn btn-primary navbar-btn js_pick_menu">Menu</button>
                     <button type="button" class="btn btn-primary navbar-btn js_pick_incomings">Incomings</button>
                     <button type="button" class="btn btn-primary navbar-btn js_pick_outgoings">Outgoings</button>
                     <button type="button" class="btn btn-primary navbar-btn js_pick_products">All Products</button>
@@ -505,8 +505,8 @@
         <div class="navbar navbar-inverse navbar-static-top" role="navigation">
             <div class="container">
                 <div class="navbar-left">
-                    <button type="button" class="btn btn-primary navbar-btn js_pick_menu">Menu</button>
                     <button type="button" class="btn btn-primary navbar-btn js_pick_incoming_product" style="background-color: orange;">Incoming Product</button>
+                    <button type="button" class="btn btn-primary navbar-btn js_pick_menu">Menu</button>
                     <button type="button" class="btn btn-primary navbar-btn js_pick_incomings">Incomings</button>
                     <button type="button" class="btn btn-primary navbar-btn js_pick_outgoings">Outgoings</button>
                     <button type="button" class="btn btn-primary navbar-btn js_pick_products">All Products</button>
@@ -680,13 +680,17 @@
             <div>
                 <div style="float: left; width: 70%;">
                      <table class='table table-condensed table-striped'>
-                        <tr>
+                        <tr style="font-size: 20px;">
                             <th>Brand</th>
                             <td><t t-esc="product.brand" /></td>
                         </tr>
-                        <tr>
+                        <tr style="font-size: 20px;">
                             <th>Name</th>
                             <td><t t-esc="product.name" /></td>
+                        </tr>
+                        <tr style="font-size: 20px;">
+                            <th>Quantity On Hand</th>
+                            <td><t t-if="product.qty_available"><t t-esc="product.qty_available"/></t><t t-if="! product.qty_available">0</t></td>
                         </tr>
                         <tr>
                             <th>EAN13 Barcode</th>
@@ -697,8 +701,8 @@
                             <td><t t-esc="product.default_code" /></td>
                         </tr>
                         <tr>
-                            <th>Quantity On Hand</th>
-                            <td><t t-if="product.qty_available"><t t-esc="product.qty_available"/></t><t t-if="! product.qty_available">0</t></td>
+                            <th>Virtual Quantity Available</th>
+                            <td><t t-if="product.virtual_available"><t t-esc="product.virtual_available"/></t><t t-if="! product.virtual_available">0</t></td>
                         </tr>
                         <tr>
                             <th>Internal Category</th>
@@ -817,7 +821,9 @@
             <button type="button" class="btn btn-danger js_confirm_incomings pull-right">Transfer IN and Continue</button>
         </t>    
         <t t-if="incomings.length === 0">
-            <h1 style="color: red; font-weight: bold;">No IN found! Please check the incoming picking lists</h1>
+            <h1 style="color: red; font-weight: bold;">No IN found => the product is already transferred</h1>
+            <hr/>
+            <button type="button" class="btn btn-danger js_go_to_outgoings pull-right">Go to OUT</button>
         </t>
     </div>
 </t>
@@ -837,10 +843,10 @@
             <a href="#">OUTPUT SELECTION</a>
         </button>   
         
-        <h1>Product quantity to share: <span id="product_qty"></span></h1>
+        <h1>Virtual available product quantity to share: <span id="product_qty"></span></h1>
         <h3>Product: <t t-esc="product.brand" /> - <t t-esc="product.name" /></h3>
         <hr/>
-        <h2 style="color: blue; font-weight: bold;">Product quantity to reserve for a customer (reserve and print IN)</h2>
+        <h2 style="color: blue; font-weight: bold;">Product quantity to reserve for a customer (reserve and print OUT)</h2>
         <t t-if="outgoings.length > 0">
             <table class='table table-striped customer-moves'>
                 <thead>
@@ -911,7 +917,7 @@
         
         <table class='table table-striped stock-moves' style="width: initial;">
                 <tr>	 	
-                    <th class="text-left">Transferred OUT Quantity</th>
+                    <th class="text-left">Transferred IN Quantity</th>
                     <th></th>
                 </tr>
                 <tr>
@@ -936,7 +942,7 @@
     </div>
 </t>
 
-
+<!--
 <t t-name="IncomingProductFinishWidget">
     <div class="container">
         <button class="progressbar">
@@ -958,7 +964,7 @@
         <button type="button" class="btn btn-danger js_redirect_incoming_product pull-right">New Incoming Product</button>
     </div>
 </t>
-
+-->
 
 <t t-name="PageWidget">
     <div>
