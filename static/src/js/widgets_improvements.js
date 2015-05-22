@@ -2288,6 +2288,9 @@ function openerp_picking_widgets(instance){
 
             self.$('.content').html(QWeb.render('IncomingProductWidget',{product:self.product}));
             
+            self.$('#product_search_box').show();
+            self.$('.js_clear_search').show();
+            
             self.$('.js_clear_search').click(function(){ 
                 self.$('#product_search_box').val(""); self.$('#product_search_box').focus();
             });
