@@ -300,7 +300,10 @@ function openerp_picking_widgets(instance){
                 self.getParent().print_picking();
                 self.getParent().print_picking_labels();
             });
-            this.$('.js_pick_print').click(function(){ self.getParent().print_picking(); });
+            this.$('.js_pick_print').click(function() {
+            	self.getParent().print_picking();
+            	self.getParent().print_picking();
+            });
             this.$('.js_pick_print_labels').click(function(){ self.getParent().print_picking_labels(); });
             this.$('.js_print_label').click(function(){
                 self.getParent().print_label($(this).data('id')); 
