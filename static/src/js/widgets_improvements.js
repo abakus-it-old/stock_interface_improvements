@@ -294,6 +294,12 @@ function openerp_picking_widgets(instance){
             this._super();
             this.check_content_screen();
             this.$('.js_pick_done').click(function(){ self.getParent().done(); });
+            this.$('.js_pick_print_all').click(function() {
+                // Print the picking list 2 times and the labels in a single press
+                self.getParent().print_picking();
+                self.getParent().print_picking();
+                self.getParent().print_picking_labels();
+            });
             this.$('.js_pick_print').click(function(){ self.getParent().print_picking(); });
             this.$('.js_pick_print_labels').click(function(){ self.getParent().print_picking_labels(); });
             this.$('.js_print_label').click(function(){
