@@ -649,7 +649,7 @@
                                     <span t-att-class="icon_class" t-att-style="icon_style"/><t t-esc="picking.name" />
                                 </td>
                                 <td t-att-class="'brctbl-col2 text-left'">
-                                    <t t-esc="picking.product_uom_qty" />
+                                    <t t-esc="picking.product_qty" />
                                 </td>
                                 <td t-att-class="'brctbl-col2 text-left'">
                                     <t t-esc="picking.date" />
