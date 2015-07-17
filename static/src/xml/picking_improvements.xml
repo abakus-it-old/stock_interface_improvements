@@ -591,9 +591,10 @@
                             </tr>
                             <tr>
                                 <th class="text-left" width="25%">Picking Name</th>
+                                <th class="text-left" width="8%">Quantity</th>
                                 <th class="text-left" width="25%">Creation Date</th>   
                                 <th class="text-left" width="25%">Partner</th>
-                                <th class="text-left" width="25%">State</th>
+                                <th class="text-left" width="17%">State</th>
                             </tr>
                     </thead>
                     <tbody>
@@ -634,7 +635,7 @@
                                     <t t-set="icon_class" t-value=""/>
                                     <t t-set="icon_style" t-value=""/>
                                     <t t-if="type.name=='INCOMING'">
-                                        <t t-set="icon_class" t-value="'fa fa-sign-in'"/>
+                                        <t t-set="icon_class" t-value="'fa fa-truck'"/>
                                     </t>
                                     <t t-if="type.name=='OUTGOING'">
                                         <t t-set="icon_class" t-value="'fa fa-truck'"/>
@@ -646,6 +647,9 @@
                                         <t t-set="icon_style" t-value="'margin-right: 5px;'"/>
                                     </t>
                                     <span t-att-class="icon_class" t-att-style="icon_style"/><t t-esc="picking.name" />
+                                </td>
+                                <td t-att-class="'brctbl-col2 text-left'">
+                                    <t t-esc="picking.product_uom_qty" />
                                 </td>
                                 <td t-att-class="'brctbl-col2 text-left'">
                                     <t t-esc="picking.date" />
