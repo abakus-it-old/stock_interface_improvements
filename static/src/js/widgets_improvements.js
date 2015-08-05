@@ -106,7 +106,7 @@ function openerp_picking_widgets(instance){
         start: function(){
             instance.webclient.set_content_full_screen(true);
             var self = this;
-            //this.$('.js_pick_quit').click(function(){ self.quit(); });
+            this.$('.js_pick_quit').click(function(){ self.quit(); });
             this.$('.js_pick_menu').click(function(){ self.menu(); });
             this.$('.js_pick_products').click(function(){ self.goto_products(); });
             this.$('.js_pick_moves_products').click(function(){ self.goto_moves_products(); });
@@ -229,7 +229,7 @@ function openerp_picking_widgets(instance){
                                     container_id: undefined,
                                     loc: packopline.location_id[1],
                                     dest: packopline.location_dest_id[1],
-                                    state: ' ',
+                                    state: '',
                                     availability: '',
                                     id: packopline.result_package_id[0],
                                     product_id: undefined,
@@ -254,8 +254,8 @@ function openerp_picking_widgets(instance){
                                 container_id: packopline.result_package_id[0],
                                 loc: packopline.location_id[1],
                                 dest: packopline.location_dest_id[1],
-                                state: packopline.stock_move.state ? packopline.stock_move.state : " ",
-                                availability: packopline.stock_move.string_availability_info,
+                                state: packopline.stock_move ? packopline.stock_move.state : "",
+                                availability: packopline.stock_move ? packopline.stock_move.string_availability_info : "",
                                 id: packopline.id,
                                 product_id: packopline.product_id[0],
                                 can_scan: packopline.result_package_id[1] === undefined ? true : false,
@@ -721,7 +721,7 @@ function openerp_picking_widgets(instance){
         renderElement: function(){
             this._super();
             var self = this;
-            //this.$('.js_pick_quit').click(function(){ self.quit(); });
+            this.$('.js_pick_quit').click(function(){ self.quit(); });
             this.$('.js_pick_scan').click(function(){ self.scan_picking($(this).data('id')); });
             this.$('.js_pick_last').click(function(){ self.goto_last_picking_of_type($(this).data('id')); });
             self.$('.js_pick_menu').click(function(){ self.menu(); });
@@ -1078,7 +1078,7 @@ function openerp_picking_widgets(instance){
                 self.scan(ean);
             });
 
-            //this.$('.js_pick_quit').click(function(){ self.quit(); });
+            this.$('.js_pick_quit').click(function(){ self.quit(); });
             this.$('.js_pick_prev').click(function(){ self.picking_prev(); });
             this.$('.js_pick_next').click(function(){ self.picking_next(); });
             this.$('.js_pick_menu').click(function(){ self.menu(); });
@@ -1824,6 +1824,7 @@ function openerp_picking_widgets(instance){
             this.product_template = null;
             this.stock_moves = [];
             this.picking_ids = [];
+            this.picking_ids_move_qty = {};
             this.pickings = [];
             this.picking_type_ids = [];
             this.picking_types = [];
@@ -1852,17 +1853,19 @@ function openerp_picking_widgets(instance){
                     self.product.image_medium = self.product_template.image_medium;
                     self.product.category = self.product_template.categ_id[1];
                     return new instance.web.Model("stock.move")
-                        .query(['id','picking_id'])
+                        .query(['id','picking_id','product_uom_qty'])
                         .filter([['product_id', '=', self.product.id]])
                         .all()
                 }).then(function(stock_mov) {
                     self.stock_moves = stock_mov;
                     self.picking_ids = [];
+                    self.picking_ids_move_qty = {};
                     for(var i = 0; i < stock_mov.length; i++){
                         self.picking_ids.push(stock_mov[i].picking_id[0]);
+                        self.picking_ids_move_qty[stock_mov[i].picking_id[0]] = stock_mov[i].product_uom_qty;
                     }
                     return new instance.web.Model("stock.picking")
-                        .query(['id','name','date','partner_id','state','picking_type_id'])
+                        .query(['id','name','date','partner_id','state','picking_type_id','product_qty'])
                         .filter([['id', 'in', self.picking_ids]])
                         .all()
                 }).then(function(picks) {
@@ -1898,6 +1901,7 @@ function openerp_picking_widgets(instance){
                                     self.pickings[j].state = picking_states[self.pickings[j].state];
                                 }
                                 self.pickings[j].partner = self.pickings[j].partner_id[1];
+                                self.pickings[j].product_qty = self.picking_ids_move_qty[self.pickings[j].id];
                                 type.pickings.push(self.pickings[j]);
                             }
                         }
@@ -2170,6 +2174,7 @@ function openerp_picking_widgets(instance){
         init: function(parent,params){
             this._super(parent,params);
             this.product = null;
+            this.productSearchResults = [];
             this.product_tmp = null;
             this.product_template = null;
             this.product_qty = 0;
@@ -2198,35 +2203,91 @@ function openerp_picking_widgets(instance){
               "hideMethod": "fadeOut"
             }
         },
-        loadProduct: function(ean){
+
+        
+        searchProducts: function(searchString){
             var self = this;
-            if(ean){
-                return new instance.web.Model("product.product")
-                    .query(['id','name','ean13','default_code','product_tmpl_id'])
-                    .filter([['ean13', '=', ean]])
+
+            product_templates = {};
+            picking_ids = [];
+            product_ids = [];
+            
+            return new instance.web.Model("product.template")
+                    .query(['id','product_brand_id'])
+                    .filter([['type', '=', 'product']])
+                    .all()
+                    .then(function(product_tmpls) {
+                        for(var i = 0; i < product_tmpls.length; i++){
+                            var product_template = product_tmpls[i];
+                            product_templates[product_template.id] = product_template.product_brand_id[1];
+                        }
+                        return new instance.web.Model("stock.picking")
+                            .query(['id'])
+                            .filter([['state', 'in', ['assigned','partially_available']]])
+                            .all()
+                    }).then(function(pickings) { 
+                        for(var i = 0; i < pickings.length; i++){
+                            picking_ids.push(pickings[i].id)
+                        }
+                        return new instance.web.Model("stock.move")
+                            .query(['product_id'])
+                            .filter([['picking_id', 'in', picking_ids]])
+                            .all()
+                    }).then(function(moves) { 
+                        for(var i = 0; i < moves.length; i++){
+                            if(!(moves[i].product_id[0] in product_ids)){
+                                product_ids.push(moves[i].product_id[0])
+                            }
+                        }
+                        return new instance.web.Model("product.product")
+                            .query(['id','name','ean13','default_code','product_tmpl_id'])
+                            .filter(['&',['id', 'in', product_ids],'|',['name','ilike',searchString],['default_code','ilike',searchString]])
+                            .limit(15)
+                            .order_by('name')
+                            .all()
+                    }).then(function(prods) {
+                        self.productSearchResults = [];
+                        for(var i = 0; i < prods.length; i++){
+                            var product = prods[i];
+                            if (!product_templates[product.product_tmpl_id[0]]){continue;}
+                            product.ean13 = product.ean13 ? product.ean13 : ""
+                            product.brand = product.product_tmpl_id[0] ? product_templates[product.product_tmpl_id[0]] : "";
+                            product.label = product.brand + " - " + product.name + "[" + product.default_code + "]";
+                            self.productSearchResults.push(product);
+                        }
+                        self.productSearchResults.sort(function(a, b) {
+                            return a.label.localeCompare(b.label);
+                        })
+                    });            
+        },       
+        loadProduct: function(product_filter_argument){
+            var self = this;
+            return new instance.web.Model("product.product")
+                .query(['id','name','ean13','default_code','product_tmpl_id'])
+                .filter([product_filter_argument])
+                .first()
+            .then(function(prod) {
+                if(!prod){
+                    self.product_tmp = null;
+                    return null;
+                }
+                self.product_tmp = prod;
+                self.product_tmp.ean13 = self.product_tmp.ean13 ? self.product_tmp.ean13 : "";
+                return new instance.web.Model("product.template")
+                    .query(['id','product_brand_id','qty_available','virtual_available','image_medium','categ_id'])
+                    .filter([['id', '=', self.product_tmp.product_tmpl_id[0]]])
                     .first()
-                .then(function(prod) {
-                    if(!prod){
-                        self.product_tmp = null;
-                        return null;
-                    }
-                    self.product_tmp = prod;
-                    self.product_tmp.ean13 = self.product_tmp.ean13 ? self.product_tmp.ean13 : "";
-                    return new instance.web.Model("product.template")
-                        .query(['id','product_brand_id','qty_available','virtual_available','image_medium','categ_id'])
-                        .filter([['id', '=', self.product_tmp.product_tmpl_id[0]]])
-                        .first()
-                }).then(function(product_tmpl) {
-                    if(!product_tmpl){return;}
-                    self.product_template = product_tmpl;
-                    self.product_tmp.brand = self.product_template.product_brand_id ? self.product_template.product_brand_id[1] : "";
-                    self.product_tmp.qty_available = self.product_template.qty_available ? self.product_template.qty_available : 0;
-                    self.product_tmp.virtual_available = self.product_template.virtual_available ? self.product_template.virtual_available : 0;
-                    self.product_tmp.image_medium = self.product_template.image_medium;
-                    self.product_tmp.category = self.product_template.categ_id[1];
-                    return self.product_tmp;
-                });
-            }
+            }).then(function(product_tmpl) {
+                if(!product_tmpl){return;}
+                self.product_template = product_tmpl;
+                self.product_tmp.brand = self.product_template.product_brand_id ? self.product_template.product_brand_id[1] : "";
+                self.product_tmp.qty_available = self.product_template.qty_available ? self.product_template.qty_available : 0;
+                self.product_tmp.virtual_available = self.product_template.virtual_available ? self.product_template.virtual_available : 0;
+                self.product_tmp.image_medium = self.product_template.image_medium;
+                self.product_tmp.category = self.product_template.categ_id[1];
+                return self.product_tmp;
+            });
+            
         },
         loadPickings: function(){
             var self = this;
@@ -2293,12 +2354,28 @@ function openerp_picking_widgets(instance){
         },
         render_product_selection: function(){
             var self = this;
-
+            
+            self.$('#product_search_box').unbind();
+            
             self.barcode_scanner.disconnect();
             self.barcode_scanner.connect(function(barcode){
-                self.scan(barcode);
+                self.scan(['ean13', '=', barcode]);
             });
-
+            self.$("#product_search_box").autocomplete({
+                source: function(request, response) {
+                    self.searchProducts(request.term).then(function(){
+                        response(self.productSearchResults);
+                    })
+                },
+                minLength: 1,
+                select: function( event, ui ) {
+                    if(ui.item.ean13.length<1){
+                        alert("No barcode found for this product! Please add the barcode in the Odoo web interface");
+                    }
+                    self.scan(['id', '=', ui.item.id]);
+                }
+            });    
+            
             self.$('.content').html(QWeb.render('IncomingProductWidget',{product:self.product}));
             
             self.$('#product_search_box').show();
@@ -2307,12 +2384,14 @@ function openerp_picking_widgets(instance){
             self.$('.js_clear_search').click(function(){ 
                 self.$('#product_search_box').val(""); self.$('#product_search_box').focus();
             });
-            self.$('.oe_searchbox').keyup(function(event){
+
+            self.$('#product_search_box').keyup(function(event){
                 var val = $(this).val();
                 if (val.length == 12 || val.length == 13){
-                    self.scan($(this).val());
+                    self.scan(['ean13', '=', $(this).val()]);
                 }
             });
+
             
             self.$('.js_minus').unbind();
             self.$('.js_minus').click(function(){
@@ -2328,6 +2407,7 @@ function openerp_picking_widgets(instance){
             });
             
             self.$('.js_confirm_product').unbind();
+
             self.$('.js_confirm_product').click(function(){
                 self.render_incoming_selection();
             });
@@ -2340,6 +2420,7 @@ function openerp_picking_widgets(instance){
             {
                 self.$('#product_search_box').hide();
                 self.$('.js_clear_search').hide();
+                self.$('#product_search_box').unbind();
                 self.stock_picking_type = 'incoming';
                 self.loadPickings().then(function(){
                     self.barcode_scanner.disconnect();
@@ -2429,7 +2510,15 @@ function openerp_picking_widgets(instance){
                                         var incoming_transferred = [picking_id, stock_move_id,product_qty];
                                         self.incomings_product_qty_sum += product_qty;
                                         self.incomings_transferred.push(incoming_transferred); 
-                                        wait_return = picking_model.call('transfer_stock_move_of_a_picking', incoming_transferred );
+                                        wait_return = picking_model.call('transfer_stock_move_of_a_picking', incoming_transferred).then(function(){
+                                            if($("#create-backorder").is(':checked')){
+                                                return picking_model.call('create_backorder', [picking_id]).then(function(){
+                                                        toastr.success('Backorder created!');
+                                                        return true;
+                                                    });
+                                            }
+                                            else{return true;}
+                                        });
                                     }
                                 });
                                 
@@ -2461,7 +2550,7 @@ function openerp_picking_widgets(instance){
         render_outgoing_selection:function(){
             var self = this;
             
-            self.loadProduct(self.product.ean13).then(function(){self.stock_picking_type = 'outgoing'; return self.loadPickings()}).then(function(){
+            self.loadProduct(['ean13', '=', self.product.ean13]).then(function(){self.stock_picking_type = 'outgoing'; return self.loadPickings()}).then(function(){
                 self.$('.content').html(QWeb.render('IncomingProductSelectOutgoingsWidget',{product: self.product, outgoings: self.pickings, incomings_product_qty_sum: self.incomings_product_qty_sum,}));
                 
                 var qty_sum = 0;
@@ -2582,48 +2671,44 @@ function openerp_picking_widgets(instance){
                 });
             });
         },
-        /*render_finish:function(){
+
+        scan: function(product_filter_argument){ //scans a barcode, sends it to the server, then reload the ui
             var self = this;
-            self.$('.content').html(QWeb.render('IncomingProductFinishWidget',{product: self.product,}));
-            self.$('.js_minus').unbind();
-            self.$('.js_plus').unbind();
-            self.$('.js_confirm_print').unbind();
-            self.$('.js_qty').unbind();
-            self.$('.js_redirect_incoming_product').click(function(){
-                self.$('.js_pick_incoming_product').click();
-            });
-        },*/
-        scan: function(ean){ //scans a barcode, sends it to the server, then reload the ui
-            //for ean13 barcodes with 12 characters
-            ean = String(ean)
-            if(ean.length<13){
-                for(var i = 0 ; i<13-ean.length ; ++i){
-                    ean = "0"+ean;
+           
+            if(product_filter_argument[0]=='ean13'){
+                //for ean13 barcodes with 12 characters
+                ean = String(product_filter_argument[2]);
+                //is a number and 12 or 13 chars then barcode
+                if(!isNaN(ean) && (ean.length==12 || ean.length==13)){
+                    if(ean.length<13){
+                        for(var i = 0 ; i<13-ean.length ; ++i){
+                            ean = "0"+ean;
+                        }
+                        product_filter_argument[2] = ean;
+                    }
                 }
             }
-            var self = this;
             
-            return this.loadProduct(ean).then(function(){
-                    if(self.product == null && self.product_tmp!=null){
-                        self.product=self.product_tmp;
+            return this.loadProduct(product_filter_argument).then(function(){
+                if(self.product == null && self.product_tmp!=null){
+                    self.product=self.product_tmp;
+                    self.render_product_selection();
+                }
+                else if(self.product_tmp == null){
+                    toastr.error('Product not found');
+                }
+                else if(self.product_tmp && self.product && self.product_tmp.id==self.product.id){
+                    self.$('.js_qty').val(parseInt(self.$('.js_qty').val())+1);
+                    toastr.success('+1');
+                }
+                else if(self.product_tmp && self.product && self.product_tmp.id!=self.product.id){
+                    if (confirm('Do you want to change the current product?')) {
+                        self.product = self.product_tmp;
                         self.render_product_selection();
+                    } else {
+                        // Do nothing!
                     }
-                    else if(self.product_tmp == null){
-                        toastr.error('Product not found');
-                    }
-                    else if(self.product_tmp && self.product && self.product_tmp.id==self.product.id){
-                        self.$('.js_qty').val(parseInt(self.$('.js_qty').val())+1);
-                        toastr.success('+1');
-                    }
-                    else if(self.product_tmp && self.product && self.product_tmp.id!=self.product.id){
-                        if (confirm('Do you want to change the current product?')) {
-                            self.product = self.product_tmp;
-                            self.render_product_selection();
-                        } else {
-                            // Do nothing!
-                        }
-                    }
-                    
+                }  
             });
         },
     });

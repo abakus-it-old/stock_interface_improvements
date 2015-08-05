@@ -73,10 +73,10 @@
         <div class="row">
             <!-- modified -->
             <div>
-                <div class="col-sm-6 col-xs-6">
+                <div class="col-sm-4 col-xs-4">
                     <h2 class="oe_pick_app_header"/>
                 </div>
-                <div class="col-sm-6 col-xs⁻6 text-right">
+                <div class="col-sm-8 col-xs⁻8 text-right">
                     <button type="button" class='btn btn-default js_pick_done'>Create backorder</button>
                     <button type="button" class='btn btn-default js_pick_print'>Print Document</button>
                     <button type="button" class='btn btn-default js_pick_print_two_times'>Print 2X</button>
@@ -260,13 +260,14 @@
                 <div class="navbar-header navbar-form navbar-left" style="width: 1170px;">
                     <input type='text' class="oe_searchbox form-control" placeholder='Search'/>
                     <button type="button" class="btn btn-primary navbar-btn js_pick_incoming_product" style="background-color: orange;">Incoming Product</button>
-                    <button type="button" class="btn btn-primary navbar-btn js_pick_menu">Menu</button>
+                    <!-- <button type="button" class="btn btn-primary navbar-btn js_pick_menu">Menu</button> -->
                     <button type="button" class="btn btn-primary navbar-btn js_pick_incomings">Incomings</button>
                     <button type="button" class="btn btn-primary navbar-btn js_pick_outgoings">Outgoings</button>
                     <button type="button" class="btn btn-primary navbar-btn js_pick_products">All Products</button>
                     <button type="button" class="btn btn-primary navbar-btn js_pick_moves_products">Moves Products</button>
                     <button type="button" class="btn btn-primary navbar-btn js_pick_customers">Customers</button>
                     <button type="button" class="btn btn-primary navbar-btn js_pick_suppliers">Suppliers</button>
+                    <button type="button" class="btn btn-danger navbar-btn js_pick_quit">Quit</button>
                 </div>
                 <div class="navbar-header navbar-form navbar-right">
                     <!--<button type="button" class="btn btn-danger js_pick_quit pull-right">Quit</button>-->
@@ -472,7 +473,7 @@
                                     No picking found.
                                 </td>
                             </tr>
-                        </t>
+                        </t>                        
                         <t t-if="pickings.length > 0">
                             <t t-foreach="pickings" t-as="picking">
                                 <tr t-att-data-id="picking.id" class="oe_product">
@@ -508,7 +509,7 @@
             <div class="container">
                 <div class="navbar-left">
                     <button type="button" class="btn btn-primary navbar-btn js_pick_incoming_product" style="background-color: orange;">Incoming Product</button>
-                    <button type="button" class="btn btn-primary navbar-btn js_pick_menu">Menu</button>
+                    <!-- <button type="button" class="btn btn-primary navbar-btn js_pick_menu">Menu</button> -->
                     <button type="button" class="btn btn-primary navbar-btn js_pick_incomings">Incomings</button>
                     <button type="button" class="btn btn-primary navbar-btn js_pick_outgoings">Outgoings</button>
                     <button type="button" class="btn btn-primary navbar-btn js_pick_products">All Products</button>
@@ -519,6 +520,7 @@
                 <div class="navbar-right">
                     <button type="button" class="btn btn-default navbar-btn js_pick_prev">&lt; Previous</button>
                     <button type="button" class="btn btn-default navbar-btn js_pick_next">Next &gt;</button>
+                    <button type="button" class="btn btn-danger navbar-btn js_pick_quit">Quit</button>
                 </div>
             </div>
         </div>
@@ -587,14 +589,14 @@
                 <table class='table table-condensed table-bordered' t-att-style="table_style">
                     <thead>
                             <tr>
-                            <th class="text-center" style="font-size:20px;" colspan="4"><t t-esc="type.name"/></th>
+                            <th class="text-center" style="font-size:20px;" colspan="5"><t t-esc="type.name"/></th>
                             </tr>
                             <tr>
-                                <th class="text-left" width="25%">Picking Name</th>
-                                <th class="text-left" width="8%">Quantity</th>
-                                <th class="text-left" width="25%">Creation Date</th>   
-                                <th class="text-left" width="25%">Partner</th>
-                                <th class="text-left" width="17%">State</th>
+                                <th class="text-left" width="20%">Picking Name</th>
+                                <th class="text-left" width="20%">Quantity</th>
+                                <th class="text-left" width="20%">Creation Date</th>
+                                <th class="text-left" width="20%">Partner</th>
+                                <th class="text-left" width="20%">State</th>
                             </tr>
                     </thead>
                     <tbody>
@@ -824,7 +826,14 @@
                 </tbody>
             </table>
             <hr/>
-            <button type="button" class="btn btn-danger js_confirm_incomings pull-right">Transfer IN and Continue</button>
+
+            <button type="button" class="btn btn-danger js_confirm_incomings pull-right" style="margin-bottom: 15px;">Transfer IN and Continue</button>
+            <div style="clear: both;" class="checkbox pull-right">
+                <label style="font-weight: bold; color: orangered;">
+                    <input type="checkbox" id="create-backorder"><span class="text-uppercase">Is the last product of the order form</span><br/><small>(create a backorder for the other products of the picking list)</small></input>
+                </label>
+            </div>
+
         </t>    
         <t t-if="incomings.length === 0">
             <h1 style="color: red; font-weight: bold;">No IN found => the product is already transferred</h1>
@@ -943,6 +952,7 @@
         </table>
         
         <hr/>
+
         <button type="button" class="btn btn-danger js_confirm_print pull-right">Reserve and/or Print Labels</button>
         
     </div>
@@ -980,13 +990,14 @@
                     <input type='text' id="product_search_box" class="oe_searchbox form-control" placeholder='Search'/>
                     <button type="button" class="btn btn-primary navbar-btn js_clear_search">Clear Search</button>
                     <button type="button" class="btn btn-primary navbar-btn js_pick_incoming_product" style="background-color: orange;">Incoming Product</button>
-                    <button type="button" class="btn btn-primary navbar-btn js_pick_menu">Menu</button>
+                    <!-- <button type="button" class="btn btn-primary navbar-btn js_pick_menu">Menu</button> -->
                     <button type="button" class="btn btn-primary navbar-btn js_pick_incomings">Incomings</button>
                     <button type="button" class="btn btn-primary navbar-btn js_pick_outgoings">Outgoings</button>
                     <button type="button" class="btn btn-primary navbar-btn js_pick_products">All Products</button>
                     <button type="button" class="btn btn-primary navbar-btn js_pick_moves_products">Moves Products</button>
                     <button type="button" class="btn btn-primary navbar-btn js_pick_customers">Customers</button>
                     <button type="button" class="btn btn-primary navbar-btn js_pick_suppliers">Suppliers</button>
+                    <button type="button" class="btn btn-danger navbar-btn js_pick_quit">Quit</button>
                 </div>
                 <div class="navbar-header navbar-form navbar-right">
                 <!--<button type="button" class="btn btn-danger js_pick_quit pull-right">Quit</button>-->

@@ -85,3 +85,18 @@ class stock_delivery_labels(models.Model):
                 stock_picking_obj.write(cr, uid, picking.id, {'state':'done','date_done': time.strftime(DEFAULT_SERVER_DATETIME_FORMAT)}, context=context)
         
         return True
+        
+    def create_backorder(self, cr, uid, ids, context={}):
+        picking = self.pool.get("stock.picking").browse(cr, uid, ids)
+        #check if all moves are done, than done the picking
+        ok = False
+        for move in picking.move_lines:
+            if move.state == 'done':
+                ok = True
+                break
+        if ok:
+            self.pool.get("stock.picking")._create_backorder(cr, uid, picking, context=context)
+        else:
+            return {'warning': {'title': 'Backorder Creation Failure', 'message': 'You need at least a finished product line to create a backorder'},}
+
+        return True
