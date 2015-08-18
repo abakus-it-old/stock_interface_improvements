@@ -1,6 +1,8 @@
 #Stock interface improvements
     This module is based on the interface extension of the warehouse module.
     
+    New delivery order report (under construction)
+    
     New menu items:
         - Incoming product:
             - (1) scan a product and select quantity (with search by EAN13)
