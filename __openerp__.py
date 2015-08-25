@@ -10,7 +10,7 @@
     Stock interface improvements
     This module is based on the interface extension of the warehouse module.
     
-    New delivery order report (under construction)
+    New delivery note report (under construction)
     
     New menu items:
         - Incoming product:
@@ -38,6 +38,6 @@
 
     This module has been developed by Bernard Delhez, intern @ AbAKUS it-solutions, under the control of Valentin Thirion.
     """,
-    'data': ['view/stock.xml','view/stock_picking.xml','report/report_deliveryorder.xml'],
+    'data': ['view/stock.xml','view/stock_picking.xml','report/report_deliverynote.xml'],
     'qweb': ['static/src/xml/picking_improvements.xml'],
 }
