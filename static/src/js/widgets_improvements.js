@@ -101,6 +101,7 @@ function openerp_picking_widgets(instance){
                         clear_breadcrumbs: true,
                     });
                 }
+                
             });
         },
         start: function(){
@@ -108,13 +109,14 @@ function openerp_picking_widgets(instance){
             var self = this;
             this.$('.js_pick_quit').click(function(){ self.quit(); });
             this.$('.js_pick_menu').click(function(){ self.menu(); });
-            this.$('.js_pick_products').click(function(){ self.goto_products(); });
-            this.$('.js_pick_moves_products').click(function(){ self.goto_moves_products(); });
-            this.$('.js_pick_incomings').click(function(){ self.goto_incomings(); });
-            this.$('.js_pick_outgoings').click(function(){ self.goto_outgoings(); });
-            this.$('.js_pick_customers').click(function(){ self.goto_customers(); });
-            this.$('.js_pick_suppliers').click(function(){ self.goto_suppliers(); });
-            this.$('.js_pick_incoming_product').click(function(){ self.goto_incoming_product(); });
+            this.$('.js_pick_products').click(function(event){  self.goto_products(); });
+            this.$('.js_pick_moves_products').click(function(event){  self.goto_moves_products(); });
+            this.$('.js_pick_incomings').click(function(event){  self.goto_incomings(); });
+            this.$('.js_pick_outgoings').click(function(event){  self.goto_outgoings(); });
+            this.$('.js_pick_customers').click(function(event){  self.goto_customers(); });
+            this.$('.js_pick_suppliers').click(function(event){  self.goto_suppliers();  });
+            this.$('.js_pick_incoming_product').click(function(event){ self.goto_incoming_product();});
+
         },
         
         menu: function(){
@@ -149,7 +151,6 @@ function openerp_picking_widgets(instance){
             $.bbq.pushState('#action=stock.incomingProduct');
             $(window).trigger('hashchange');
         },
-        
         quit: function(){
             this.destroy();
             return new instance.web.Model("ir.model.data").get_func("search_read")([['name', '=', 'action_picking_type_form']], ['res_id']).pipe(function(res) {
@@ -159,6 +160,12 @@ function openerp_picking_widgets(instance){
         destroy: function(){
             this._super();
             instance.webclient.set_content_full_screen(false);
+        },
+        refresh_nav_clicked_btn: function(clicked_button_class){
+            $(".nav_clicked_btn").each(function() {
+                $(this).css( "background-color", "" );
+            });
+            $(clicked_button_class).css("background-color","orange");
         },
     });
 
@@ -1573,6 +1580,14 @@ function openerp_picking_widgets(instance){
         },
         start_rendering: function(){
             var self = this;
+            
+            if(self.product_filter=='all'){
+                this.refresh_nav_clicked_btn(".js_pick_products");   
+            }
+            else if(self.product_filter=='moves'){
+                this.refresh_nav_clicked_btn(".js_pick_moves_products");   
+            }
+            
             this.$('.oe_searchbox').keyup(function(event){
                 self.on_searchbox($(this).val());
             });
@@ -1739,6 +1754,14 @@ function openerp_picking_widgets(instance){
         start: function(){
             this._super()
             var self = this;
+            
+            if(self.picking_type_code=='incoming'){
+                this.refresh_nav_clicked_btn(".js_pick_incomings");   
+            }
+            else if(self.picking_type_code=='outgoing'){
+                this.refresh_nav_clicked_btn(".js_pick_outgoings");   
+            }
+            
             instance.webclient.set_content_full_screen(true);            
             this.loaded.then(function(){
                self.start_rendering();
@@ -2014,10 +2037,19 @@ function openerp_picking_widgets(instance){
         start: function(){
             this._super();
             var self = this;
+            
+            if(self.partner_type=='customer'){
+                this.refresh_nav_clicked_btn(".js_pick_customers");   
+            }
+            else if(self.partner_type=='supplier'){
+                this.refresh_nav_clicked_btn(".js_pick_suppliers");   
+            }
+            
             instance.webclient.set_content_full_screen(true);            
             this.loaded.then(function(){
                self.start_rendering();
             });
+ 
         },
         goto_partner: function(id){
             $.bbq.pushState('#action=stock.partnerMoves&partner_id='+id);
@@ -2155,6 +2187,7 @@ function openerp_picking_widgets(instance){
                    self.goto_picking($(this).data('id'));
                });
             });
+            
         },
         goto_picking: function(picking_id){
             $.bbq.pushState('#action=stock.ui&picking_id='+picking_id);
@@ -2315,7 +2348,8 @@ function openerp_picking_widgets(instance){
                     .all()
                 }).then(function(picks) {
                     self.pickings = [];
-                    picks.sort(function(a, b) {if(a.partner_id[1] == b.partner_id[1]){return a.min_date.localeCompare(b.min_date);} return a.partner_id[1].localeCompare(b.partner_id[1]);})
+                    picks.sort(function(a, b) {return a.min_date.localeCompare(b.min_date);});
+//old sort method:  picks.sort(function(a, b) {if(a.partner_id[1] == b.partner_id[1]){return a.min_date.localeCompare(b.min_date);} return a.partner_id[1].localeCompare(b.partner_id[1]);})
 
                     var picking_states = {  draft:"Draft", 
                                             cancel:"Cancelled", 
@@ -2350,6 +2384,9 @@ function openerp_picking_widgets(instance){
         start: function(){
             this._super();
             var self = this;
+            
+            this.refresh_nav_clicked_btn(".js_pick_incoming_product");            
+            
             self.render_product_selection();
         },
         render_product_selection: function(){
@@ -2553,20 +2590,14 @@ function openerp_picking_widgets(instance){
             self.loadProduct(['ean13', '=', self.product.ean13]).then(function(){self.stock_picking_type = 'outgoing'; return self.loadPickings()}).then(function(){
                 self.$('.content').html(QWeb.render('IncomingProductSelectOutgoingsWidget',{product: self.product, outgoings: self.pickings, incomings_product_qty_sum: self.incomings_product_qty_sum,}));
                 
-                var qty_sum = 0;
-
-                self.$('.customer-moves').find(".js_qty").each(function() {
-                    qty_sum += parseInt($(this).parent().parent().parent().prev().html());
-                });
-                
-                var initial_qty = qty_sum + self.product.virtual_available;
-                
                 function recompute_product_quantity() {
                     var qty_sum = 0;
                     self.$(".js_qty").each(function() {
                         qty_sum += parseInt($(this).val());
                     });
-                    var diff = initial_qty - qty_sum;
+                    
+                    var diff = self.product_qty - qty_sum;
+                                        
                     self.$('#product_qty').html(diff);
                     if (diff==0){
                         self.$('#product_qty').attr('class','quantity_ok');
@@ -2615,11 +2646,9 @@ function openerp_picking_widgets(instance){
                     recompute_product_quantity();
                 });
                 
-                self.$('.js_confirm_print').click(function(){
-                    var qty = recompute_product_quantity();
-                    if(qty>=0)
+                self.$('.js_confirm_print').click(function(){;
+                    if(recompute_product_quantity()==0)
                     {
-                        //if (confirm('Do you want to continue?')) {
                             var picking_model = new instance.web.Model('stock.picking');
                             self.$('.customer-moves').find(".js_qty").each(function() {
                                 var product_qty = parseInt($(this).val());
@@ -2656,17 +2685,11 @@ function openerp_picking_widgets(instance){
                                 self.product = null;
                                                                 
                                 self.render_product_selection();  
-                           });    
-
-                        /*} 
-                        else 
-                        {
-                            // Do nothing!
-                        }*/
+                           });
                     }
                     else
                     {
-                        toastr.error('The quantity must be >= 0');
+                        toastr.error('The quantity must be completely shared (equals 0)');
                     }
                 });
             });

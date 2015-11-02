@@ -259,7 +259,7 @@
             <div class="container">
                 <div class="navbar-header navbar-form navbar-left" style="width: 1170px;">
                     <input type='text' class="oe_searchbox form-control" placeholder='Search'/>
-                    <button type="button" class="btn btn-primary navbar-btn js_pick_incoming_product" style="background-color: orange;">Incoming Product</button>
+                    <button type="button" class="btn btn-primary navbar-btn js_pick_incoming_product">Incoming Product</button>
                     <!-- <button type="button" class="btn btn-primary navbar-btn js_pick_menu">Menu</button> -->
                     <button type="button" class="btn btn-primary navbar-btn js_pick_incomings">Incomings</button>
                     <button type="button" class="btn btn-primary navbar-btn js_pick_outgoings">Outgoings</button>
@@ -508,7 +508,7 @@
         <div class="navbar navbar-inverse navbar-static-top" role="navigation">
             <div class="container">
                 <div class="navbar-left">
-                    <button type="button" class="btn btn-primary navbar-btn js_pick_incoming_product" style="background-color: orange;">Incoming Product</button>
+                    <button type="button" class="btn btn-primary navbar-btn js_pick_incoming_product">Incoming Product</button>
                     <!-- <button type="button" class="btn btn-primary navbar-btn js_pick_menu">Menu</button> -->
                     <button type="button" class="btn btn-primary navbar-btn js_pick_incomings">Incomings</button>
                     <button type="button" class="btn btn-primary navbar-btn js_pick_outgoings">Outgoings</button>
@@ -858,10 +858,10 @@
             <a href="#">OUTPUT SELECTION</a>
         </button>   
         
-        <h1>Virtual available product quantity to share: <span id="product_qty"></span></h1>
+        <h1>Scanned product quantity to share: <span id="product_qty"></span></h1>
         <h3>Product: <t t-esc="product.brand" /> - <t t-esc="product.name" /></h3>
         <hr/>
-        <h2 style="color: blue; font-weight: bold;">Product quantity to reserve for a customer (reserve and print OUT)</h2>
+        <h2 style="color: blue; font-weight: bold;">Product quantity to reserve for a customer <small>(reservation and printing labels)</small></h2>
         <t t-if="outgoings.length > 0">
             <table class='table table-striped customer-moves'>
                 <thead>
@@ -926,13 +926,13 @@
             <h2 style="color: red; font-weight: bold;">No OUT found!</h2>
         </t>
         <hr/>
-        <h2 style="color: blue; font-weight: bold;">Product quantity to not reserve (only print OUT labels)</h2>
+        <h2 style="color: blue; font-weight: bold;">Product quantity to add to the stock <small>(printing labels, no reservation)</small></h2>
         
         
         
         <table class='table table-striped stock-moves' style="width: initial;">
                 <tr>	 	
-                    <th class="text-left">Transferred IN Quantity</th>
+                    <th class="text-left">Maximum Quantity</th>
                     <th></th>
                 </tr>
                 <tr>
@@ -989,14 +989,14 @@
                 <div class="navbar-header navbar-form navbar-left" style="width: 1170px;">
                     <input type='text' id="product_search_box" class="oe_searchbox form-control" placeholder='Search'/>
                     <button type="button" class="btn btn-primary navbar-btn js_clear_search">Clear Search</button>
-                    <button type="button" class="btn btn-primary navbar-btn js_pick_incoming_product" style="background-color: orange;">Incoming Product</button>
+                    <button type="button" class="btn btn-primary navbar-btn nav_clicked_btn js_pick_incoming_product">Incoming Product</button>
                     <!-- <button type="button" class="btn btn-primary navbar-btn js_pick_menu">Menu</button> -->
-                    <button type="button" class="btn btn-primary navbar-btn js_pick_incomings">Incomings</button>
-                    <button type="button" class="btn btn-primary navbar-btn js_pick_outgoings">Outgoings</button>
-                    <button type="button" class="btn btn-primary navbar-btn js_pick_products">All Products</button>
-                    <button type="button" class="btn btn-primary navbar-btn js_pick_moves_products">Moves Products</button>
-                    <button type="button" class="btn btn-primary navbar-btn js_pick_customers">Customers</button>
-                    <button type="button" class="btn btn-primary navbar-btn js_pick_suppliers">Suppliers</button>
+                    <button type="button" class="btn btn-primary navbar-btn nav_clicked_btn js_pick_incomings">Incomings</button>
+                    <button type="button" class="btn btn-primary navbar-btn nav_clicked_btn js_pick_outgoings">Outgoings</button>
+                    <button type="button" class="btn btn-primary navbar-btn nav_clicked_btn js_pick_products">All Products</button>
+                    <button type="button" class="btn btn-primary navbar-btn nav_clicked_btn js_pick_moves_products">Moves Products</button>
+                    <button type="button" class="btn btn-primary navbar-btn nav_clicked_btn js_pick_customers">Customers</button>
+                    <button type="button" class="btn btn-primary navbar-btn nav_clicked_btn js_pick_suppliers">Suppliers</button>
                     <button type="button" class="btn btn-danger navbar-btn js_pick_quit">Quit</button>
                 </div>
                 <div class="navbar-header navbar-form navbar-right">
