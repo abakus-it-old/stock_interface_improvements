@@ -830,7 +830,7 @@
             <button type="button" class="btn btn-danger js_confirm_incomings pull-right" style="margin-bottom: 15px;">Transfer IN and Continue</button>
             <div style="clear: both;" class="checkbox pull-right">
                 <label style="font-weight: bold; color: orangered;">
-                    <input type="checkbox" id="create-backorder"><span class="text-uppercase">Is the last product of the order form</span><br/><small>(create a backorder for the other products of the picking list)</small></input>
+                    <input type="checkbox" id="create-backorder"><span class="text-uppercase">Is the last product of the current delivery note</span><br/><small>(create a backorder for the other products of the picking list)</small></input>
                 </label>
             </div>
 
