@@ -25,6 +25,7 @@
                                             <br/>
                                             <span t-field="o.sale_id.partner_invoice_id"/>
                                             <address t-field="o.sale_id.partner_invoice_id" t-field-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;], &quot;no_marker&quot;: true}"/>
+                                            <t t-if="o.sale_id.partner_id.vat"><span t-field="o.sale_id.partner_id.vat"/></t>
                                         </div>
                                     </div>
                                     <div style="float: right; width: 40%;">
@@ -40,28 +41,70 @@
                                 </div>
                                 <p style="clear: both;"></p>
                                 <h1 class="text-left" >Delivery Note</h1>
+                                <h3>Date: <span t-esc="time.strftime('%d-%m-%Y')"/></h3>
 
-                                <table class="table table-condensed">
+                                <!-- Current Picking -->
+                                <!--
+                                <h2>Delivery: <span t-esc="o.name"/></h2>
+                                <table class="table table-condensed table-bordered">
                                     <thead>
                                         <tr>
-                                            <th style="width: 25%;"><strong>Date</strong></th>
-                                            <th style="width: 25%;"><strong>Customer VAT Number</strong></th>
+                                            <th>Order Number</th>
+                                            <th>Date</th>
+                                            <th>State</th>
+                                            <t t-if="o.backorder_id"><th>Backorder of</th></t>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
                                             <td>
-                                                <span t-esc="time.strftime('%d-%m-%Y')"/>
+                                                <span t-esc="o.origin"/>
                                             </td>
                                             <td>
-                                                <t t-if="o.move_lines[0].partner_id.vat"><span t-field="o.move_lines[0].partner_id.vat"/></t>
+                                                <span t-esc="o.date"/>
                                             </td>
+                                            <td>
+                                                <span t-esc="o.state"/>
+                                            </td>
+                                            <t t-if="o.backorder_id">
+                                                <td>
+                                                    <span t-esc="o.backorder_id.name"/>
+                                                </td>
+                                            </t>
                                         </tr>
                                     </tbody>
                                 </table>
+                                <table class="table table-condensed">
+                                    <thead>
+                                        <tr>
+                                            <th>Product</th>
+                                            <th>Quantity</th>
+                                            <th>State</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr t-foreach="o.move_lines" t-as="move">
+                                            <td>
+                                                <t t-if="move.product_id.product_brand_id.name">
+                                                    <span t-esc="move.product_id.product_brand_id.name"/> -
+                                                </t>
+                                                <span t-esc="move.product_id.name"/>
+                                                <br/>
+                                                <span t-esc="move.product_id.default_code"/>
+                                                <t t-if="move.product_id.ean13"><br/>
+                                                    <img t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('EAN13', move.product_id.ean13, 600, 100)" style="width:120px;height:20px"/>
+                                                    <span t-esc="move.product_id.ean13"/>
+                                                </t>
+                                            </td>
+                                            <td><span t-esc="move.product_uom_qty"/> <span t-esc="move.product_uom.name"/></td>
+                                            <td><span t-esc="move.state"/></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                -->
 
-                                <t t-foreach="o.get_report_data_picking_lists_out_from_partner(o.sale_id.partner_invoice_id)" t-as="picking">
-                                    <h2>Delivery Note Number: <span t-esc="picking['name']"/></h2>
+                                <t t-foreach="o.get_report_data_picking_lists_out_from_partner(o.id, o.sale_id.partner_invoice_id)" t-as="picking">
+                                    <h2>Delivery Number: <span t-esc="picking['name']"/></h2>
                                     <table class="table table-condensed table-bordered">
                                         <thead>
                                             <tr>
@@ -108,7 +151,6 @@
                                         </tbody>
                                     </table>
                                 </t>
-
 
                                 <!--
                                     <table class="table">

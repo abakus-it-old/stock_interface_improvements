@@ -1,4 +1,4 @@
-﻿from openerp import models,api
+from openerp import models,api
 from datetime import datetime
 import time
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT, DEFAULT_SERVER_DATE_FORMAT
@@ -101,19 +101,20 @@ class stock_delivery_labels(models.Model):
 
         return True
     
-    def get_report_data_picking_lists_out_from_partner(self, partner):
+    def get_report_data_picking_lists_out_from_partner(self, delivery_id, partner):
         cr = self.env.cr
         uid = self.env.user.id
         stock_picking_obj = self.pool.get('stock.picking')
         stock_picking_type_obj = self.pool.get('stock.picking.type')
         stock_picking_type_ids = stock_picking_type_obj.search(cr, uid, [('code','=','outgoing')],)
 
-        last_transferred_stock_picking_ids = stock_picking_obj.search(cr, uid, [('partner_id','=',partner.id),('picking_type_id','in',stock_picking_type_ids),('state','=','done')], order="date_done desc", limit=1)
-        open_stock_picking_ids = stock_picking_obj.search(cr, uid, [('partner_id','=',partner.id),('picking_type_id','in',stock_picking_type_ids),('state','in',['confirmed','partially_available'])], order="date desc")
+        current_picking_ids = stock_picking_obj.search(cr, uid, [('partner_id','=',partner.id),('picking_type_id','in',stock_picking_type_ids), ('id', '=', delivery_id)], order="date_done desc", limit=1)
+
+        open_stock_picking_ids = stock_picking_obj.search(cr, uid, [('partner_id','=',partner.id),('picking_type_id','in',stock_picking_type_ids),('state','in',['confirmed','partially_available']), ('id', '!=', delivery_id)], order="date desc")
         
         picking_ids = []
-        if last_transferred_stock_picking_ids:
-            picking_ids.extend(last_transferred_stock_picking_ids)
+        if current_picking_ids:
+            picking_ids.extend(current_picking_ids)
         if open_stock_picking_ids:
             picking_ids.extend(open_stock_picking_ids)
         
@@ -155,6 +156,7 @@ class stock_delivery_labels(models.Model):
                                     'ref':move.product_id.default_code,
                                     'qty': move.product_uom_qty,
                                     'uom':move.product_uom.name,
+                                    'date':move.date,
                                 }
                     
                     if move.state in move_state_dict:
