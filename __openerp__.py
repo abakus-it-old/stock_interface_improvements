@@ -38,6 +38,6 @@
 
     This module has been developed by Bernard Delhez, intern @ AbAKUS it-solutions, under the control of Valentin Thirion.
     """,
-    'data': ['view/stock.xml','view/stock_picking.xml','report/report_deliverynote.xml'],
+    'data': ['view/stock.xml','view/stock_picking.xml'],
     'qweb': ['static/src/xml/picking_improvements.xml'],
 }
