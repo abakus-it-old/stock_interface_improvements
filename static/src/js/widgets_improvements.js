@@ -101,6 +101,15 @@ function openerp_picking_widgets(instance){
                         clear_breadcrumbs: true,
                     });
                 }
+                else if (states.action === "stock.collectAndGo"){
+                    self.do_action({
+                        type:   'ir.actions.client',
+                        tag:    'stock.collectAndGo',
+                        target: 'current',
+                    },{
+                        clear_breadcrumbs: true,
+                    });
+                }
                 
             });
         },
@@ -116,6 +125,7 @@ function openerp_picking_widgets(instance){
             this.$('.js_pick_customers').click(function(event){  self.goto_customers(); });
             this.$('.js_pick_suppliers').click(function(event){  self.goto_suppliers();  });
             this.$('.js_pick_incoming_product').click(function(event){ self.goto_incoming_product();});
+            this.$('.js_pick_collect_and_go').click(function(event){ self.goto_collect_and_go();});
 
         },
         
@@ -149,6 +159,10 @@ function openerp_picking_widgets(instance){
         },
         goto_incoming_product: function(){
             $.bbq.pushState('#action=stock.incomingProduct');
+            $(window).trigger('hashchange');
+        },
+        goto_collect_and_go: function(){
+            $.bbq.pushState('#action=stock.collectAndGo');
             $(window).trigger('hashchange');
         },
         quit: function(){
@@ -691,6 +705,15 @@ function openerp_picking_widgets(instance){
                         clear_breadcrumbs: true,
                     });
                 }
+                else if (states.action === "stock.collectAndGo"){
+                    self.do_action({
+                        type:   'ir.actions.client',
+                        tag:    'stock.collectAndGo',
+                        target: 'current',
+                    },{
+                        clear_breadcrumbs: true,
+                    });
+                }
             });
             this.picking_types = [];
             this.loaded = this.load();
@@ -731,14 +754,15 @@ function openerp_picking_widgets(instance){
             this.$('.js_pick_quit').click(function(){ self.quit(); });
             this.$('.js_pick_scan').click(function(){ self.scan_picking($(this).data('id')); });
             this.$('.js_pick_last').click(function(){ self.goto_last_picking_of_type($(this).data('id')); });
-            self.$('.js_pick_menu').click(function(){ self.menu(); });
-            self.$('.js_pick_products').click(function(){ self.goto_products(); });
+            this.$('.js_pick_menu').click(function(){ self.menu(); });
+            this.$('.js_pick_products').click(function(){ self.goto_products(); });
             this.$('.js_pick_moves_products').click(function(){ self.goto_moves_products(); });
-            self.$('.js_pick_incomings').click(function(){ self.goto_incomings(); });
-            self.$('.js_pick_outgoings').click(function(){ self.goto_outgoings(); });
+            this.$('.js_pick_incomings').click(function(){ self.goto_incomings(); });
+            this.$('.js_pick_outgoings').click(function(){ self.goto_outgoings(); });
             this.$('.js_pick_customers').click(function(){ self.goto_customers(); });
             this.$('.js_pick_suppliers').click(function(){ self.goto_suppliers(); });
             this.$('.js_pick_incoming_product').click(function(){ self.goto_incoming_product(); });
+            this.$('.js_pick_collect_and_go').click(function(){ self.goto_collect_and_go(); });
             this.$('.oe_searchbox').keyup(function(event){
                 self.on_searchbox($(this).val());
             });
@@ -794,6 +818,10 @@ function openerp_picking_widgets(instance){
         },
         goto_incoming_product: function(){
             $.bbq.pushState('#action=stock.incomingProduct');
+            $(window).trigger('hashchange');
+        },
+        goto_collect_and_go: function(){
+            $.bbq.pushState('#action=stock.collectAndGo');
             $(window).trigger('hashchange');
         },
         search_picking: function(barcode){
@@ -926,6 +954,15 @@ function openerp_picking_widgets(instance){
                     self.do_action({
                         type:   'ir.actions.client',
                         tag:    'stock.incomingProduct',
+                        target: 'current',
+                    },{
+                        clear_breadcrumbs: true,
+                    });
+                }
+                else if (states.action === "stock.collectAndGo"){
+                    self.do_action({
+                        type:   'ir.actions.client',
+                        tag:    'stock.collectAndGo',
                         target: 'current',
                     },{
                         clear_breadcrumbs: true,
@@ -1096,6 +1133,7 @@ function openerp_picking_widgets(instance){
             this.$('.js_pick_customers').click(function(){ self.goto_customers(); });
             this.$('.js_pick_suppliers').click(function(){ self.goto_suppliers(); });
             this.$('.js_pick_incoming_product').click(function(){ self.goto_incoming_product(); });
+            this.$('.js_pick_collect_and_go').click(function(){ self.goto_collect_and_go(); });
             this.$('.js_reload_op').click(function(){ self.reload_pack_operation();});
 
             $.when(this.loaded).done(function(){
@@ -1248,6 +1286,14 @@ function openerp_picking_widgets(instance){
         },
         goto_incoming_product: function(){
             $.bbq.pushState('#action=stock.incomingProduct');
+            $(window).trigger('hashchange');
+        },
+        goto_incoming_product: function(){
+            $.bbq.pushState('#action=stock.incomingProduct');
+            $(window).trigger('hashchange');
+        },
+        goto_collect_and_go: function(){
+            $.bbq.pushState('#action=stock.collectAndGo');
             $(window).trigger('hashchange');
         },
         scan: function(ean){ //scans a barcode, sends it to the server, then reload the ui
@@ -2197,6 +2243,9 @@ function openerp_picking_widgets(instance){
     openerp.web.client_actions.add('stock.partnerMoves', 'instance.stock.PartnerMovesWidget');
 
     
+    
+    
+       
     /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
     /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
     /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
@@ -2207,6 +2256,7 @@ function openerp_picking_widgets(instance){
         init: function(parent,params){
             this._super(parent,params);
             this.product = null;
+            this.ean13="";
             this.productSearchResults = [];
             this.product_tmp = null;
             this.product_template = null;
@@ -2448,6 +2498,54 @@ function openerp_picking_widgets(instance){
             self.$('.js_confirm_product').click(function(){
                 self.render_incoming_selection();
             });
+            
+            //edit ean13
+        
+              self.ean13 = $( "#ean13" )
+
+          
+            function editEan13() {
+              if ( self.ean13.val().length == 13 ) {
+                return new instance.web.Model("product.product").call('write',[[self.product.id],{'ean13': self.ean13.val() }]).then(function(){
+                    self.product.ean13 = self.ean13.val();
+                    self.$('.content').html(QWeb.render('IncomingProductWidget',{product:self.product}));
+                    dialog.dialog( "close" );
+                    self.render_product_selection();
+                });
+ 
+              }
+              else{
+                  alert("Invalid EAN13")
+              }
+              return true;
+            }
+         
+            dialog = $( "#dialog-form" ).dialog({
+              autoOpen: false,
+              height: 200,
+              width: 350,
+              modal: true,
+              buttons: {
+                "Save": editEan13,
+                Cancel: function() {
+                  dialog.dialog( "close" );
+                }
+              },
+              close: function() {
+                form[ 0 ].reset();
+              }
+            });
+         
+            form = dialog.find( "form" ).on( "submit", function( event ) {
+              event.preventDefault();
+              editEan13();
+            });
+         
+            $( "#edit-ean13" ).button().on( "click", function() {
+              dialog.dialog( "open" );
+            });
+            
+            
         },
         render_incoming_selection: function(){
             var self = this;
@@ -2646,7 +2744,7 @@ function openerp_picking_widgets(instance){
                     recompute_product_quantity();
                 });
                 
-                self.$('.js_confirm_print').click(function(){;
+                self.$('.js_confirm_print').click(function(){
                     if(recompute_product_quantity()==0)
                     {
                             var picking_model = new instance.web.Model('stock.picking');
@@ -2719,6 +2817,7 @@ function openerp_picking_widgets(instance){
                 }
                 else if(self.product_tmp == null){
                     toastr.error('Product not found');
+                    self.$('#product_search_box').val(""); self.$('#product_search_box').focus();
                 }
                 else if(self.product_tmp && self.product && self.product_tmp.id==self.product.id){
                     self.$('.js_qty').val(parseInt(self.$('.js_qty').val())+1);
@@ -2736,6 +2835,95 @@ function openerp_picking_widgets(instance){
         },
     });
     openerp.web.client_actions.add('stock.incomingProduct', 'instance.stock.IncomingProductWidget');
+    
+    
+    
+    /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+    /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+    /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+    /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+    /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+    module.CollectAndGoWidget = module.PageWidget.extend({
+        init: function(parent,params){
+            this._super(parent,params);
+            this.customer = null;
+            this.customersSearchResults = null;         
+        },
+
+        searchCustomers: function(searchString){
+            var self = this;
+            return new instance.web.Model("res.partner")
+                    .query(['id','name','parent_id'])
+                    .filter([['name','ilike',searchString],['customer','=',true]])
+                    .limit(15)
+                    .order_by('name')
+                    .all()
+                    .then(function(partners) {
+                        self.customersSearchResults = [];
+                        
+                        for(var i = 0; i < partners.length; i++){
+                            var partner = partners[i];
+                            if (partner.parent_id[1]){
+                                partner.label = partner.parent_id[1] + ": " + partner.name;
+                            }
+                            else{
+                                partner.label = partner.name;
+                            }
+                            self.customersSearchResults.push(partner);
+                        }
+                        self.customersSearchResults.sort(function(a, b) {
+                            return a.label.localeCompare(b.label);
+                        })
+                    });   
+        },       
+        
+        start: function(){
+            this._super();
+            var self = this;
+            
+            this.refresh_nav_clicked_btn(".js_pick_collect_and_go");            
+            self.$('#product_search_box').hide();
+            self.$('.js_clear_search').hide();
+            
+            self.render_customer_selection();
+        },
+        render_customer_selection: function(){
+            var self = this;
+            
+            self.$('.content').html(QWeb.render('CollectAndGoWidget',{}));
+
+            self.$("#customer_search_box").autocomplete({
+                source: function(request, response) {
+                    self.searchCustomers(request.term).then(function(){
+                        response(self.customersSearchResults);
+                    })
+                },
+                minLength: 1,
+                select: function( event, ui ) {
+                    self.customer = ui.item;
+                }
+            });
+
+            self.$('.js_transfer_products_and_print_delivery_note').click(function(){
+                new instance.web.Model('delivery.note.lines').call('transfer_products_and_create_delivery_note_from_partner_id', [self.customer.id]).then(function(action){
+                                           return self.do_action(action);
+                                        }); 
+            });
+            self.$('.js_print_last_delivery_note').click(function(){
+                new instance.web.Model('delivery.note.lines').call('print_last_delivery_note_from_partner_id', [self.customer.id]).then(function(action){
+                                           return self.do_action(action);
+                                        });
+            });
+            self.$('.js_print_order_form').click(function(){
+                new instance.web.Model('delivery.note.lines').call('print_order_form_from_partner_id', [self.customer.id]).then(function(action){
+                                           return self.do_action(action);
+                                        }); 
+            });             
+        },
+        
+    });
+    openerp.web.client_actions.add('stock.collectAndGo', 'instance.stock.CollectAndGoWidget');
 
     
     /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/

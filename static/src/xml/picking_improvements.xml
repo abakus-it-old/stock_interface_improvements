@@ -260,6 +260,7 @@
                 <div class="navbar-header navbar-form navbar-left" style="width: 1170px;">
                     <input type='text' class="oe_searchbox form-control" placeholder='Search'/>
                     <button type="button" class="btn btn-primary navbar-btn js_pick_incoming_product">Incoming Product</button>
+                    <button type="button" class="btn btn-primary navbar-btn js_pick_collect_and_go">CollectAndGo</button>
                     <!-- <button type="button" class="btn btn-primary navbar-btn js_pick_menu">Menu</button> -->
                     <button type="button" class="btn btn-primary navbar-btn js_pick_incomings">Incomings</button>
                     <button type="button" class="btn btn-primary navbar-btn js_pick_outgoings">Outgoings</button>
@@ -509,6 +510,7 @@
             <div class="container">
                 <div class="navbar-left">
                     <button type="button" class="btn btn-primary navbar-btn js_pick_incoming_product">Incoming Product</button>
+                    <button type="button" class="btn btn-primary navbar-btn js_pick_collect_and_go">CollectAndGo</button>
                     <!-- <button type="button" class="btn btn-primary navbar-btn js_pick_menu">Menu</button> -->
                     <button type="button" class="btn btn-primary navbar-btn js_pick_incomings">Incomings</button>
                     <button type="button" class="btn btn-primary navbar-btn js_pick_outgoings">Outgoings</button>
@@ -702,7 +704,7 @@
                         </tr>
                         <tr>
                             <th>EAN13 Barcode</th>
-                            <td><t t-esc="product.ean13" /></td>
+                            <td><span id="ean13-barcode"><t t-esc="product.ean13" /></span>   <button id="edit-ean13">Edit</button></td>
                         </tr>
                         <tr>
                             <th>Internal Reference</th>
@@ -754,6 +756,23 @@
             <h1>Scan a product</h1>
             <img src="/stock/static/src/img/scan.png" alt="Barcode"/>
         </t>
+         <t t-set="ean13value" t-value=""/>
+        <t t-if="product != null">
+            <t t-set="ean13value" t-value="product.ean13"/>
+        </t>
+
+        <div id="dialog-form" title="Edit">
+          <form>
+            <fieldset>
+              <label for="name">EAN13</label>
+              <input type="text" name="ean13" id="ean13" t-att-value="ean13value" class="text ui-widget-content ui-corner-all" />
+              <!-- Allow form submission with keyboard without duplicating the dialog button -->
+              <input type="submit" tabindex="-1" style="position:absolute; top:-1000px" />
+            </fieldset>
+          </form>
+        </div>
+        
+       
     </div>
 </t>
 
@@ -982,6 +1001,18 @@
 </t>
 -->
 
+
+<t t-name="CollectAndGoWidget">
+    <div class="container">
+        <input type='text' id="customer_search_box" class="oe_searchbox form-control" placeholder='Search customer' style="margin-bottom: 300px;"/>
+
+        <button type="button" class="btn btn-danger js_transfer_products_and_print_delivery_note" style="margin-right: 50px;">Transfer products and print delivery note</button>
+        <button type="button" class="btn btn-danger js_print_last_delivery_note" style="margin-right: 50px;">Print last delivery note</button>
+        <button type="button" class="btn btn-danger js_print_order_form" style="margin-right: 50px;">Print order form</button>
+    </div>
+</t>
+
+
 <t t-name="PageWidget">
     <div>
          <div class="navbar navbar-inverse navbar-static-top" role="navigation">
@@ -990,6 +1021,7 @@
                     <input type='text' id="product_search_box" class="oe_searchbox form-control" placeholder='Search'/>
                     <button type="button" class="btn btn-primary navbar-btn js_clear_search">Clear Search</button>
                     <button type="button" class="btn btn-primary navbar-btn nav_clicked_btn js_pick_incoming_product">Incoming Product</button>
+                    <button type="button" class="btn btn-primary navbar-btn nav_clicked_btn js_pick_collect_and_go">CollectAndGo</button>
                     <!-- <button type="button" class="btn btn-primary navbar-btn js_pick_menu">Menu</button> -->
                     <button type="button" class="btn btn-primary navbar-btn nav_clicked_btn js_pick_incomings">Incomings</button>
                     <button type="button" class="btn btn-primary navbar-btn nav_clicked_btn js_pick_outgoings">Outgoings</button>

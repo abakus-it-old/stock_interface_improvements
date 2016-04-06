@@ -1,7 +1,7 @@
 {
    'name': "Stock interface improvements",
     'version': '1.0',
-    'depends': ['stock'],
+    'depends': ['stock', 'stock_delivery_note_report'],
     'author': "Bernard DELHEZ, AbAKUS it-solutions SARL",
     'website': "http://www.abakusitsolutions.eu",
     'category': 'Warehouse Management',
